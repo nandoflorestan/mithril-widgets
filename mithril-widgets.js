@@ -49,6 +49,18 @@ Array.prototype.sortBy = function (key, desc) {
 };
 
 
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+
 class UL { // Unordered list
 	constructor(attrs, items) {
 		this.attrs = attrs;
@@ -167,7 +179,7 @@ var Notifier = { // A position:fixed component to display toasts
 		if (!dis) {
 			arr.push(m('button[title="Dismiss"]', {onclick: Notifier.next}, '×'));
 		}
-		if (this.index > 0) {
+		if (this.index > (dis ? -1 : 0)) {
 			arr.push(m('button[title="Previous"]', {onclick: Notifier.prev}, '<'));
 		}
 		arr.push(content);
@@ -176,16 +188,35 @@ var Notifier = { // A position:fixed component to display toasts
 };
 
 
-function request(d) { // Lets user know a request is in progress
+function request(d) {
+	// Let user know a request is in progress and
+	// set the 'X-XSRF-Token' request header.
 	let notifier = d.pop('notifier') || Notifier;
 	let handle = d.status ? notifier.addStatus(d.status) : null;
 	d.withCredentials = true;
+	d.headers = d.headers || {};
+	d.headers['X-XSRF-Token'] = readCookie('XSRF-TOKEN');
 	let promise = m.request(d);
 	let ret = {then: function (callback) { this.callback = callback; }};
 	promise.then(function (response) {
 		if (handle)  notifier.rmStatus(handle);
 		if (ret.callback) return ret.callback(response);
 		return response;
+	});
+	promise.catch(function (e) {
+		let msg = {level: 'danger'};
+		if (e.error_title)  msg.title = e.error_title;
+		if (e.error_msg)  msg.plain = e.error_msg;
+		if (e.error_title || e.error_msg)  {
+		} else if (typeof e === 'string') {
+			msg.plain = e;
+		} else {
+			msg.title = 'Unexpected error';
+			msg.plain = String(e);
+		}
+		notifier.add(msg);
+		if (handle)  notifier.rmStatus(handle);
+		if (e.redirect)  window.location = e.redirect;
 	});
 	return ret;
 }
