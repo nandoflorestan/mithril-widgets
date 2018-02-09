@@ -1,7 +1,6 @@
 'use strict';
 
-// This module contains widgets for Mithril and Bootstrap 4.
-// But first, let's add a couple useful methods to js data types.
+// PART 1: add a couple useful methods to js data types.
 
 Object.defineProperty(Object.prototype, 'extend', {
 	writable: false,
@@ -9,7 +8,7 @@ Object.defineProperty(Object.prototype, 'extend', {
 	enumerable: false,
 	value: function (src) {
 		if (src === null) return this;
-		var self = this;
+		const self = this;
 		Object.keys(src).forEach(function(key) { self[key] = src[key]; });
 		return this;
 	}
@@ -49,6 +48,8 @@ Array.prototype.sortBy = function (key, desc) {
 };
 
 
+// PART 2: Useful helper functions and services
+
 function readCookie(name) {
     var nameEQ = name + "=";
     var ca = document.cookie.split(';');
@@ -60,6 +61,14 @@ function readCookie(name) {
     return null;
 }
 
+var Unique = {
+	n: 0,
+	next: () => ++Unique.n,
+	domID: () => '_' + Unique.next(),  // div IDs must not start with a number
+};
+
+
+// PART 3: widgets for Mithril and Bootstrap 4
 
 class UL { // Unordered list
 	constructor(attrs, items) {
@@ -118,7 +127,7 @@ var Notifier = { // A position:fixed component to display toasts
 		}
 	},
 	next: function () {
-		let self = Notifier;
+		const self = Notifier;
 		window.clearTimeout(self.timeOut); // in case button pressed
 
 		if (self.phase === 'off') {
@@ -145,7 +154,7 @@ var Notifier = { // A position:fixed component to display toasts
 		m.redraw();
 	},
 	prev: function () { // prev button was pressed
-		let self = Notifier;
+		const self = Notifier;
 		window.clearTimeout(self.timeOut);
 		self.index = self.index - (self.phase === 'off' ? 1 : 2);
 		self.phase = 'starting';
@@ -177,10 +186,10 @@ var Notifier = { // A position:fixed component to display toasts
 		let cls = ['starting', 'fading out'].contains(this.phase) ? '.fade-out' : '';
 		let arr = [];
 		if (!dis) {
-			arr.push(m('button[title="Dismiss"]', {onclick: Notifier.next}, '×'));
+			arr.push(m('button[title=Dismiss]', {onclick: Notifier.next}, '×'));
 		}
 		if (this.index > (dis ? -1 : 0)) {
-			arr.push(m('button[title="Previous"]', {onclick: Notifier.prev}, '<'));
+			arr.push(m('button[title=Previous]', {onclick: Notifier.prev}, '<'));
 		}
 		arr.push(content);
 		return m(`.notifier${cls}.alert.alert-${level}[role="alert"]`, arr);
@@ -307,14 +316,115 @@ class Option {  // for <select>. Args: ins, value, selected, title
 }
 
 
+class MenuStrategy {
+	constructor(entry) {
+		this.entry = entry;
+	}
+	navigate(url) {
+		if (url === '##') { // TODO NOT NECESSARY ANYMORE?
+			return false;
+		} else {
+			window.location = url;
+		}
+	}
+}
+class SelectNav extends MenuStrategy {
+	view(vnode) {
+		return m(
+			"select", {
+				onchange: m.withAttr('value', this.navigate),
+				style: this.entry.style || 'margin-right:1rem;',
+			},
+			this.options(this.entry));
+	}
+	options(entry) {
+		return [
+			this.option(entry),
+			m('optgroup', {label: "Navigate to:"},
+				entry.children.map(c => this.option(c))),
+		];
+	}
+	option(entry) {
+		return m(Option, {
+			ins: entry.label, value: entry.url, title: entry.tooltip});
+	}
+}
+class DropdownNav extends MenuStrategy { // An individual drop down menu
+	constructor(entry) { // *entry* is a model of the menu and its children
+		super(entry);
+		this.id = Unique.domID();
+		this.dropId = 'drop' + this.id;
+		this.drop = false;
+		DropdownNav.instances.push(this);
+	}
+	view(vnode) {
+		// Why "self" in view()? You'd expect *this* to refer to this instance,
+		// but Mithril makes it an object whose prototype is this instance.
+		const self = vnode.tag;
+		return m("div.nav-item.dropdown",
+			[
+				m("a.nav-link.dropdown-toggle", {
+					href: '#',
+					id: this.id,
+					role: 'button',
+					title: this.entry.tooltip || undefined,
+					onclick: (e) => self.click.apply(self, [e]),
+					}, [
+						this.entry.icon ? m(`i.fas.fa-${this.entry.icon}`) : undefined,
+						this.entry.label,
+					],
+				),
+				m(".dropdown-menu" + (this.drop ? '.show': ''), {
+					id: this.dropId,
+					'aria-labelledby': this.id,
+					},
+					this.entry.children.map(
+						(x) => m(
+							"a.dropdown-item", {
+								href: x.url,
+								title: x.tooltip || undefined,
+								onclick: (e) => self.click.apply(self, [e]),
+							}, [
+								x.icon ? m(`i.fas.fa-${x.icon}`) : undefined,
+								x.label,
+							],
+						),
+					),
+				)
+			]
+		)
+	}
+	click(e) {
+		if (!this.drop) { // If showing, first hide any shown menus
+			for (let instance of DropdownNav.instances) {
+				instance.drop = false;
+			}
+			this.drop = true;
+		} else {
+			this.drop = false;
+		}
+	}
+}
+DropdownNav.instances = [];
+
 // TODO Icons with http://fontawesome.io/cheatsheet/
-class SelectNav {  // Simple nav menu, supporting images and Selects
-	constructor(vnode) {
-		let att = vnode.attrs;
+class NavMenu {
+	constructor(att, strategy=SelectNav) {
+		this.strategy = strategy;
 		this.permanent = att.permanent || [];
 		this.collapsable = att.collapsable;
 		this.classes = att.classes || '';
 		// ".navbar-expand-lg.navbar-dark.bg-dark"
+
+		// Instantiate any sub-widgets once at construction time
+		for (let section of [this.permanent, this.collapsable]) {
+			if (!section)  continue;
+			for (let entry of section) {
+				if (entry.children && entry.children.length > 0) {
+					entry.widget = new this.strategy(entry);
+				}
+			}
+		}
 	}
 	renderMany(entries) {
 		// return entries.map((x) => this.renderOne(x));
@@ -333,64 +443,18 @@ class SelectNav {  // Simple nav menu, supporting images and Selects
 			}.extend(entry.attrs);
 			return m(
 				"a.nav-link",
-				{href: entry.url, title: entry.tooltip}, m("img", attrs),
+				{href: entry.url, title: entry.tooltip || undefined},
+				m("img", attrs),
 			);
 		} else if (entry.children.length > 0) {
-			return m(
-				"select", {
-					onchange: m.withAttr('value', this.navigate),
-					style: entry.style || 'margin-right:1rem;',
-				},
-				this.options(entry));
+			return m(entry.widget);
 		} else {
 			return m(
 				"a.nav-link",
-				{href: entry.url, title: entry.tooltip}, entry.label);
+				{href: entry.url, title: entry.tooltip || undefined},
+				entry.label);
 		}
 	}
-	navigate(url) {
-		console.log('navigate', url);
-		if (url === '##') { // TODO NOT NECESSARY ANYMORE?
-			return false;
-		} else {
-			window.location = url;
-		}
-	}
-	options(entry) {
-		return [
-			this.option(entry),
-			m('optgroup', {label: "Navigate to:"},
-				entry.children.map(c => this.option(c))),
-		];
-	}
-	option(entry) {
-		return m(Option, {
-			ins: entry.label, value: entry.url, title: entry.tooltip});
-		// return m(
-		// 	'option', {title: entry.tooltip || undefined, value: entry.url}, entry.label);
-	}
-	/*
-		m("li.nav-item.dropdown",
-			[
-				m("a.nav-link.dropdown-toggle[aria-expanded='false'][aria-haspopup='true'][data-toggle='dropdown'][href='#'][id='navbarDropdown'][role='button']",
-					"Dropdown"
-				),
-				m(".dropdown-menu[aria-labelledby='navbarDropdown']",
-					[
-						m("a.dropdown-item[href='#']",
-							"Action"
-						),
-						m("a.dropdown-item[href='#']",
-							"Another action"
-						),
-						m(".dropdown-divider"),
-						m("a.dropdown-item[href='#']",
-							"Something else here"
-						)
-					]
-				)
-			]
-		), */
 	renderToggler(contents) {
 		return [
 			m("button.navbar-toggler[aria-controls='navbarSupportedContent'][aria-expanded='false'][aria-label='Toggle navigation'][data-target='#navbarSupportedContent'][data-toggle='collapse'][type='button']",
@@ -425,7 +489,7 @@ class SearchBox {
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
 		// but Mithril makes it an object whose prototype is this instance.
-		let self = vnode.tag;
+		const self = vnode.tag;
 		return m('.searchbox', [
 			m('.input-group', [
 				m('input.form-control.search[type=text][placeholder=Press Enter to search][aria-label=Search]', self.inputAttrs),
