@@ -55,8 +55,8 @@ function readCookie(name) {
     var ca = document.cookie.split(';');
     for(var i=0;i < ca.length;i++) {
         var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        while (c.charAt(0) === ' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
     }
     return null;
 }
@@ -239,7 +239,7 @@ class SimpleTable { // params: classes: str, headers: arr, rows: arr of arrays
 		return m('table' + (this.classes || '.table .table-bordered'), [
 			m('thead', this.headers.map(h => m('th', h))),
 			m('tbody', this.rows.map(r => m('tr',
-				r.map(txt => m('td', txt)),
+				r.map(txt => m('td', txt))
 			))),
 		]);
 	}
@@ -273,15 +273,15 @@ class SortedTable {
 				}, [
 					h.title,
 					(this.sortKey === h.key ? arrow : ''),
-				],
+				]
 			))),
 			m('tbody', this.rows.map(o => m('tr',
 				this.headers.map(h => m('td',
 					this.formatter[h.key] ?
 					this.formatter[h.key](o) :
-					o[h.key],
-				)),
-			))),
+					o[h.key]
+				))
+			)))
 		]);
 	}
 	headerClick(e, self) {  // When user clicks on a table header, sort table
@@ -372,7 +372,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 					}, [
 						this.entry.icon ? m(`i.fas.fa-${this.entry.icon}`) : undefined,
 						this.entry.label,
-					],
+					]
 				),
 				m(".dropdown-menu" + (this.drop ? '.show': ''), {
 					id: this.dropId,
@@ -387,12 +387,12 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 							}, [
 								x.icon ? m(`i.fas.fa-${x.icon}`) : undefined,
 								x.label,
-							],
-						),
-					),
+							]
+						)
+					)
 				)
 			]
-		)
+		);
 	}
 	click(e) {
 		if (!this.drop) { // If showing, first hide any shown menus
@@ -444,7 +444,7 @@ class NavMenu {
 			return m(
 				"a.nav-link",
 				{href: entry.url, title: entry.tooltip || undefined},
-				m("img", attrs),
+				m("img", attrs)
 			);
 		} else if (entry.children.length > 0) {
 			return m(entry.widget);
