@@ -231,12 +231,16 @@ function request(d) {
 }
 
 
-class SimpleTable { // params: classes: str, headers: arr, rows: arr of arrays
-	constructor(attrs) {
-		this.extend(attrs);
+class SimpleTable {  // The *rows* argument should be an array of arrays
+	constructor(headers=[], rows=[], classes='.table .table-bordered', caption=null) {
+		this.headers = headers;
+		this.rows = rows;
+		this.classes = classes;
+		this.caption = caption;
 	}
 	view() {
-		return m('table' + (this.classes || '.table .table-bordered'), [
+		return m('table' + this.classes, [
+			this.caption ? m('caption', this.caption) : null,
 			m('thead', this.headers.map(h => m('th', h))),
 			m('tbody', this.rows.map(r => m('tr',
 				r.map(txt => m('td', txt))
@@ -364,7 +368,6 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 		return m("div.nav-item.dropdown",
 			[
 				m("a.nav-link.dropdown-toggle", {
-					href: '#',
 					id: this.id,
 					role: 'button',
 					title: this.entry.tooltip || undefined,
@@ -517,6 +520,53 @@ class SearchBox {
 	}
 	hadNoResults() {
 		this.showNoResults = true;
+	}
+}
+
+
+class FormField { // A bootstrap 4 form field, maybe with associated label
+	constructor(label, component) {
+		this.component = component;
+		if (!component.id)  component.id = Unique.domID();
+		this.label = label;
+		this.labelAttrs = {for: component.id};
+	}
+	view(vnode) {
+		// Why "self" in view()? You'd expect *this* to refer to this instance,
+		// but Mithril makes it an object whose prototype is this instance.
+		const self = vnode.tag;
+		return m(".form-group", [
+			self.label ?
+				m("label", self.labelAttrs, self.label) : undefined,
+			m(self.component),
+		]);
+	}
+}
+
+
+class PhoneField {
+	constructor(opts={value:'', name: '', placeholder:'', css: ''}) {
+		this.extend(opts);
+		this.id = Unique.domID();
+		this.attrs = {
+			id: this.id,
+			name: this.name ? this.name : undefined,
+			onkeyup: m.withAttr('value', this.keyup, this),
+			// pattern: /^[\d \+\-\(\)]{5,30}$/,
+			placeholder: this.placeholder,
+			type: 'tel',
+			value: this.value,
+		};
+	}
+	keyup(val) {
+		this.value = val;
+		if (this.callback)  this.callback(val);
+	}
+	view(vnode) {
+		// Why "self" in view()? You'd expect *this* to refer to this instance,
+		// but Mithril makes it an object whose prototype is this instance.
+		const self = vnode.tag;
+		return m('input.phone.form-control' + (self.css || ''), self.attrs);
 	}
 }
 
