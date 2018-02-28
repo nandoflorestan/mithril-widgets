@@ -20,7 +20,7 @@ because I am not a Javascript expert.
 Current versions of dependencies
 ================================
 
-- Bootstrap_ 4 beta 2
+- Bootstrap_ 4.0
 - mithril_ 1.1.6
 
 
@@ -47,14 +47,15 @@ Brief description of the contents
   in progress.
 - **SearchBox** creates a search input with a "clear" button to the right.
   You can just add it to your page and then set on it an *onchange()*
-  function to do stuff whenever the value of the input changes.
+  function to do stuff whenever the user presses Enter on the search box.
 - **SimpleTable** displays a table.
 - **SortedTable** displays a table which allows the user to click on each
   header to sort the rows by that column, ascending or descending.
 - **UL** makes it easy to render an unordered list.
 - **Option** creates an <option> inside a <select> dropdown.
-- **SelectNav** creates a navigation menu, but unfortunately, currently
-  it uses <select> tags instead of Bootstrap dropdown menus.
+- **NavMenu** creates an actual Bootstrap_ navigation menu from data representing a menu structure.
+- **FormField** creates a Bootstrap_ form field, optionally with a label.
+- **PhoneField** creates a "tel" input for phone numbers.
 - **ContentEditable** creates in-place editable tags, but it is kind of
   just a stub right now. Of course, improving it is just a
   Simple Matter Of Programming...
@@ -75,8 +76,9 @@ https://github.com/scottcorgan/tiny-emitter/blob/3.0.0/tiny-emitter.js
 TO DO
 =====
 
-- https://docs.npmjs.com/getting-started/creating-node-modules
-- Improve the navigation menu
+- Observer pattern
 - Add creation date to Notification and display it, very small
 - Add more widgets
-- Perhaps reorganize this set of global variables into one *mw* object?
+- Perhaps reorganize this set of global variables into one *mw* object? This
+  would be to namespace them, since browsers STILL do not support ES6 imports.
+- https://docs.npmjs.com/getting-started/creating-node-modules
