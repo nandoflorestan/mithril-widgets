@@ -51,24 +51,40 @@ Array.prototype.sortBy = function (key, desc) {
 // PART 2: Useful helper functions and services
 
 function readCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i=0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
     }
     return null;
 }
 
-var Unique = {
+const Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++Unique.n,
 	domID: () => '_' + Unique.next(),  // div IDs must not start with a number
 };
 
+class Event {
+	constructor() {
+		this.observers = [];
+	}
+	subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
+		this.observers.push({fn, ctx});
+	}
+	unsubscribe(fn) {
+		this.observers = this.observers.filter((x) => x !== fn);
+	}
+	broadcast(...args) {
+		this.observers.forEach((o) => o.fn.apply(o.ctx, args));
+	}
+}
+
 
 // PART 3: widgets for Mithril and Bootstrap 4
+
 
 class UL { // Unordered list
 	constructor(attrs, items) {
@@ -94,14 +110,17 @@ class Notification {  // TODO icons
 		if (this.title) len += this.title.length;
 		if (this.html)  len += this.html.length;
 		if (this.plain) len += this.plain.length;
-		let duration = len * Notification.speed;
+		const duration = len * Notification.speed;
 		if (duration < Notification.min)  return Notification.min;
 		else return duration;
 	}
-	view() {
+	view(vnode) {
+		// Why "self" in view()? You'd expect *this* to refer to this instance,
+		// but Mithril makes it an object whose prototype is this instance.
+		const self = vnode.tag;
 		return m('div.notification', [
-			this.title ? m('h5', this.title) : null,
-			this.html ? m.trust(this.html) : this.plain,
+			self.title ? m('h5', self.title) : null,
+			self.html ? m.trust(self.html) : self.plain,
 		]);
 	}
 }
@@ -115,7 +134,6 @@ var Notifier = { // A position:fixed component to display toasts
 	phase: 'off', // off, starting, on, fading out
 	timeOut: -1,
 	statuses: {},
-	statusIndex: 0,
 	getCurrent: function () {
 		if (this.index === -1) return null;
 		return this.history[this.index];
@@ -161,17 +179,17 @@ var Notifier = { // A position:fixed component to display toasts
 		self.next();
 	},
 	addStatus: function (status) {
-		++this.statusIndex;
-		this.statuses[this.statusIndex] = status;
+		const handle = Unique.next();
+		this.statuses[handle] = status;
 		m.redraw();
-		return this.statusIndex;
+		return handle;
 	},
 	rmStatus: function (handle) {
 		delete this.statuses[handle];
 		m.redraw();
 	},
 	view: function () {
-		let dis = ['off', 'starting'].contains(this.phase);
+		const dis = ['off', 'starting'].contains(this.phase);
 		var content, level;
 		if (dis) { // display status
 			var statstrings = Object.values(this.statuses);
@@ -179,17 +197,17 @@ var Notifier = { // A position:fixed component to display toasts
 				m(new UL(null, statstrings)) : 'Notifications');
 			level = 'dark';
 		} else { // display a message
-			let cur = this.getCurrent();
-			content = cur.view();
+			const cur = this.getCurrent();
+			content = m(cur);
 			level = cur.level;
 		}
-		let cls = ['starting', 'fading out'].contains(this.phase) ? '.fade-out' : '';
-		let arr = [];
+		const cls = ['starting', 'fading out'].contains(this.phase) ? '.fade-out' : '';
+		const arr = [];
 		if (!dis) {
-			arr.push(m('button[title=Dismiss]', {onclick: Notifier.next}, '×'));
+			arr.push(m('button.btn.btn-secondary.btn-sm[title=Dismiss]', {onclick: Notifier.next}, '×'));
 		}
 		if (this.index > (dis ? -1 : 0)) {
-			arr.push(m('button[title=Previous]', {onclick: Notifier.prev}, '<'));
+			arr.push(m('button.btn.btn-secondary.btn-sm[title=Previous]', {onclick: Notifier.prev}, '<'));
 		}
 		arr.push(content);
 		return m(`.notifier${cls}.alert.alert-${level}[role="alert"]`, arr);
@@ -200,20 +218,20 @@ var Notifier = { // A position:fixed component to display toasts
 function request(d) {
 	// Let user know a request is in progress and
 	// set the 'X-XSRF-Token' request header.
-	let notifier = d.pop('notifier') || Notifier;
-	let handle = d.status ? notifier.addStatus(d.status) : null;
+	const notifier = d.pop('notifier') || Notifier;
+	const handle = d.status ? notifier.addStatus(d.status) : null;
 	d.withCredentials = true;
 	d.headers = d.headers || {};
 	d.headers['X-XSRF-Token'] = readCookie('XSRF-TOKEN');
-	let promise = m.request(d);
-	let ret = {then: function (callback) { this.callback = callback; }};
+	const promise = m.request(d);
+	const ret = {then: function (callback) { this.callback = callback; }};
 	promise.then(function (response) {
 		if (handle)  notifier.rmStatus(handle);
 		if (ret.callback) return ret.callback(response);
 		return response;
 	});
 	promise.catch(function (e) {
-		let msg = {level: 'danger'};
+		const msg = {level: 'danger'};
 		if (e.error_title)  msg.title = e.error_title;
 		if (e.error_msg)  msg.plain = e.error_msg;
 		if (e.error_title || e.error_msg)  {
@@ -232,7 +250,7 @@ function request(d) {
 
 
 class SimpleTable {  // The *rows* argument should be an array of arrays
-	constructor(headers=[], rows=[], classes='.table .table-bordered', caption=null) {
+	constructor({headers=[], rows=[], classes='.table .table-bordered', caption=null}={}) {
 		this.headers = headers;
 		this.rows = rows;
 		this.classes = classes;
@@ -267,7 +285,7 @@ class SortedTable {
 		this.rows = this.rows.sortBy(this.sortKey, this.desc);
 	}
 	view() {
-		let arrow = this.desc ? ' ↘' : ' ↗';
+		const arrow = this.desc ? ' ↘' : ' ↗';
 		return m('table' + (this.classes || '.table .table-bordered .table-hover'), [
 			this.caption ? m('caption[style="caption-side:top"]', this.caption) : null,
 			m('thead[title="Click on a column header to sort"]', this.headers.map(h => m('th[style="cursor:pointer;"]',
@@ -289,8 +307,8 @@ class SortedTable {
 		]);
 	}
 	headerClick(e, self) {  // When user clicks on a table header, sort table
-		let dat = e.target.dataset;
-		let sortKey = dat.key;
+		const dat = e.target.dataset;
+		const sortKey = dat.key;
 		if (self.sortKey === sortKey) {
 			self.desc = !self.desc;
 		} else {
@@ -298,7 +316,7 @@ class SortedTable {
 			self.desc = false;
 		}
 		self.sort();
-		var displayDesc = self.desc ? ' (descending)' : '';
+		const displayDesc = self.desc ? ' (descending)' : '';
 		Notifier.add({
 			level: 'success',
 			plain: `The table is now sorted by "${dat.title}"${displayDesc}.`,
@@ -309,8 +327,8 @@ class SortedTable {
 
 class Option {  // for <select>. Args: ins, value, selected, title
 	view(vnode) {
-		let bag = vnode.attrs;
-		let attrs = {
+		const bag = vnode.attrs;
+		const attrs = {
 			value: bag.value,
 			selected: bag.selected ? 'selected' : undefined,
 			title: bag.title || undefined
@@ -410,7 +428,6 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 }
 DropdownNav.instances = [];
 
-// TODO Icons with http://fontawesome.io/cheatsheet/
 class NavMenu {
 	constructor(att, strategy=SelectNav) {
 		this.strategy = strategy;
@@ -431,7 +448,7 @@ class NavMenu {
 	}
 	renderMany(entries) {
 		// return entries.map((x) => this.renderOne(x));
-		let arr = [];
+		const arr = [];
 		for (let entry of entries) {
 			arr.push(this.renderOne(entry));
 		}
@@ -439,7 +456,7 @@ class NavMenu {
 	}
 	renderOne(entry) {          // TODO add .active
 		if (entry.img){
-			let attrs = {
+			const attrs = {
 				src: entry.img,
 				alt: entry.alt,
 				style: entry.style || 'margin-right:1rem;',
@@ -469,12 +486,11 @@ class NavMenu {
 		];
 	}
 	view() {
-		var c = [];
-		if (this.collapsable) {
-			c = this.renderToggler(this.renderMany(this.collapsable));
-		}
+		let collapsNavs = this.collapsable ?
+			this.renderToggler(this.renderMany(this.collapsable))
+			: [];
 		return m("nav.navbar" + this.classes,
-			this.renderMany(this.permanent).concat(c)
+			this.renderMany(this.permanent).concat(collapsNavs)
 		);
 	}
 }
@@ -525,11 +541,11 @@ class SearchBox {
 
 
 class FormField { // A bootstrap 4 form field, maybe with associated label
-	constructor(label, component) {
-		this.component = component;
-		if (!component.id)  component.id = Unique.domID();
+	constructor(label, input) {
+		this.input = input;
+		if (!input.id)  input.id = Unique.domID();
 		this.label = label;
-		this.labelAttrs = {for: component.id};
+		this.labelAttrs = {for: input.id};
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -538,29 +554,31 @@ class FormField { // A bootstrap 4 form field, maybe with associated label
 		return m(".form-group", [
 			self.label ?
 				m("label", self.labelAttrs, self.label) : undefined,
-			m(self.component),
+			m(self.input),
 		]);
 	}
 }
 
 
 class PhoneField {
-	constructor(opts={value:'', name: '', placeholder:'', css: ''}) {
-		this.extend(opts);
+	// User code can use the event: `phonefield.changed.subscribe(fn);`
+	constructor({value='', name='', placeholder='', css='', type='tel'}={}) {
 		this.id = Unique.domID();
+		this.css = css;
 		this.attrs = {
 			id: this.id,
-			name: this.name ? this.name : undefined,
+			name: name ? name : undefined,
 			onkeyup: m.withAttr('value', this.keyup, this),
 			// pattern: /^[\d \+\-\(\)]{5,30}$/,
-			placeholder: this.placeholder,
-			type: 'tel',
-			value: this.value,
+			placeholder: placeholder,
+			type: type,
+			value: value,
 		};
+		this.changed = new Event();
 	}
 	keyup(val) {
-		this.value = val;
-		if (this.callback)  this.callback(val);
+		this.attrs.value = val;
+		this.changed.broadcast(val);
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
