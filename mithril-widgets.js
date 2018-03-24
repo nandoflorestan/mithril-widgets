@@ -9,7 +9,7 @@ Object.defineProperty(Object.prototype, 'extend', {
 	value: function (src) {
 		if (src === null) return this;
 		const self = this;
-		Object.keys(src).forEach(function(key) { self[key] = src[key]; });
+		for (const key of Object.keys(src))  self[key] = src[key];
 		return this;
 	}
 });
@@ -68,8 +68,9 @@ const Unique = { // produce unique IDs
 };
 
 class Event {
-	constructor() {
+	constructor(name) {
 		this.observers = [];
+		if (name)  Event.index[name] = this;
 	}
 	subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
 		this.observers.push({fn, ctx});
@@ -77,10 +78,11 @@ class Event {
 	unsubscribe(fn) {
 		this.observers = this.observers.filter((x) => x !== fn);
 	}
-	broadcast(...args) {
-		this.observers.forEach((o) => o.fn.apply(o.ctx, args));
+	broadcast() { // Accepts arguments.
+		for (const o of this.observers)  o.fn.apply(o.ctx, arguments);
 	}
 }
+Event.index = {}; // storage for all named events
 
 
 // PART 3: widgets for Mithril and Bootstrap 4
@@ -342,19 +344,12 @@ class MenuStrategy {
 	constructor(entry) {
 		this.entry = entry;
 	}
-	navigate(url) {
-		if (url === '##') { // TODO NOT NECESSARY ANYMORE?
-			return false;
-		} else {
-			window.location = url;
-		}
-	}
 }
 class SelectNav extends MenuStrategy {
 	view(vnode) {
 		return m(
 			"select", {
-				onchange: m.withAttr('value', this.navigate),
+				onchange: m.withAttr('value', (url) => window.location = url),
 				style: this.entry.style || 'margin-right:1rem;',
 			},
 			this.options(this.entry));
@@ -417,7 +412,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 	}
 	click(e) {
 		if (!this.drop) { // If showing, first hide any shown menus
-			for (let instance of DropdownNav.instances) {
+			for (const instance of DropdownNav.instances) {
 				instance.drop = false;
 			}
 			this.drop = true;
@@ -437,9 +432,9 @@ class NavMenu {
 		// ".navbar-expand-lg.navbar-dark.bg-dark"
 
 		// Instantiate any sub-widgets once at construction time
-		for (let section of [this.permanent, this.collapsable]) {
+		for (const section of [this.permanent, this.collapsable]) {
 			if (!section)  continue;
-			for (let entry of section) {
+			for (const entry of section) {
 				if (entry.children && entry.children.length > 0) {
 					entry.widget = new this.strategy(entry);
 				}
@@ -449,7 +444,7 @@ class NavMenu {
 	renderMany(entries) {
 		// return entries.map((x) => this.renderOne(x));
 		const arr = [];
-		for (let entry of entries) {
+		for (const entry of entries) {
 			arr.push(this.renderOne(entry));
 		}
 		return arr;

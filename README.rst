@@ -27,6 +27,7 @@ Current versions of dependencies
 Brief description of the contents
 =================================
 
+- **Event** is a tiny implementation of the Observer pattern.
 - **Notification** is a class that represents a single message to be
   displayed to the user. Each instance may contain a title,
   a main content in either HTML or plain text, and a level such as
@@ -61,22 +62,9 @@ Brief description of the contents
   Simple Matter Of Programming...
 
 
-Thinking about the future of mithril-widgets
-============================================
-
-The mithril_ community generally recommends usage of the Observer pattern for
-interaction between components. The pattern is also known as
-Publication/Subscription.
-
-None of our use cases has needed that yet, but when it happens, we intend to
-depend on a very small event library such as this:
-https://github.com/scottcorgan/tiny-emitter/blob/3.0.0/tiny-emitter.js
-
-
 TO DO
 =====
 
-- Observer pattern
 - Add creation date to Notification and display it, very small
 - Add more widgets
 - Perhaps reorganize this set of global variables into one *mw* object? This
