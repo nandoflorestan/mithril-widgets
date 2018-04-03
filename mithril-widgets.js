@@ -2,18 +2,6 @@
 
 // PART 1: add a couple useful methods to js data types.
 
-Object.defineProperty(Object.prototype, 'extend', {
-	writable: false,
-	configurable: false,
-	enumerable: false,
-	value: function (src) {
-		// Copy variables of *src* into this.
-		if (src === null) return this;
-		for (const key of Object.keys(src))  this[key] = src[key];
-		return this;
-	}
-});
-
 Object.defineProperty(Object.prototype, 'pop', {
 	writable: false,
 	configurable: false,
@@ -117,7 +105,7 @@ class UL { // Unordered list
 
 class Notification {  // TODO icons
 	constructor(d) {
-		this.extend(d);
+		Object.assign(this, d);  // shallow copy
 		if (!this.level)  this.level = 'warning';
 		if (Notification.levels.indexOf(this.level) === -1)
 			console.error('Message with wrong level:', this);
@@ -295,7 +283,7 @@ class SortedTable {
 	// desc: bool (for descending sort),
 	// formatter: object containing functions to generate the displayed value for each column (e. g. to create links)
 	constructor(attrs) {
-		this.extend(attrs);
+		Object.assign(this, attrs);  // shallow copy
 		this.formatter = this.formatter || {};
 		this.sort();
 	}
@@ -343,15 +331,47 @@ class SortedTable {
 }
 
 
-class Option {  // for <select>. Args: ins, value, selected, title
+class Select {
+	constructor({groups=null, opts=null, css='', onChange=null}={}) {
+		if (!groups && !opts || groups && opts)  throw new Error(
+			"Pass either *groups* or *opts* to Select constructor.");
+		this.groups = groups;
+		this.opts = opts;
+		this.css = css;
+		this.changed = new Event();
+		if (onChange)  this.changed.subscribe(onChange);
+	}
 	view(vnode) {
-		const bag = vnode.attrs;
-		const attrs = {
-			value: bag.value,
-			selected: bag.selected ? 'selected' : undefined,
-			title: bag.title || undefined
-		};
-		return m('option', attrs, bag.ins);
+		// Why "self" in view()? You'd expect *this* to refer to this instance,
+		// but Mithril makes it an object whose prototype is this instance.
+		const self = vnode.tag;
+		return m(
+			"select" + self.css,
+			{onchange: m.withAttr('value',
+				v => self.changed.broadcast.apply(self.changed, [v]))},
+			self.content.apply(self));
+	}
+	content() {
+		if (this.groups) {
+			return this.groups.map(
+				(g) => m(
+					'optgroup',
+					{label: g.label},
+					g.options.map(o => this.mkOption(o))));
+		} else {
+			return this.opts.map(o => this.mkOption(o));
+		}
+	}
+	mkOption(opt) {
+		return m(
+			'option',
+			{ // TODO Instead of this, just destructure *label*
+				disabled: opt.disabled,
+				selected: opt.selected ? 'selected' : undefined,
+				title: opt.title || undefined,
+				value: opt.value
+			},
+			opt.label);
 	}
 }
 
@@ -367,6 +387,7 @@ class SelectNav extends MenuStrategy {
 			"select", {
 				onchange: m.withAttr('value', (url) => window.location = url),
 				style: this.entry.style || 'margin-right:1rem;',
+				title: this.entry.tooltip || undefined,
 			},
 			this.options(this.entry));
 	}
@@ -378,8 +399,9 @@ class SelectNav extends MenuStrategy {
 		];
 	}
 	option(entry) {
-		return m(Option, {
-			ins: entry.label, value: entry.url, title: entry.tooltip});
+		return m('option',
+			{value: entry.url, title: entry.tooltip || undefined},
+			entry.label);
 	}
 }
 class DropdownNav extends MenuStrategy { // An individual drop down menu
@@ -467,11 +489,11 @@ class NavMenu {
 	}
 	renderOne(entry) {          // TODO add .active
 		if (entry.img){
-			const attrs = {
+			const attrs = Object.assign({  // shallow copy
 				src: entry.img,
 				alt: entry.alt,
 				style: entry.style || 'margin-right:1rem;',
-			}.extend(entry.attrs);
+			}, entry.attrs);
 			return m(
 				"a.nav-link",
 				{href: entry.url, title: entry.tooltip || undefined},
@@ -511,7 +533,7 @@ class SearchBox {
 	// In order to observe this, set onchange: function (value) {...}
 	constructor(attrs) {
 		this.showNoResults = false;
-		this.extend(attrs);
+		Object.assign(this, attrs);  // shallow copy
 		this.inputAttrs = this.inputAttrs || {};
 		this.inputAttrs.onkeyup = this.inputAttrs.onkeyup ||
 			((e) => this.keyup.apply(this, [e]));
