@@ -411,6 +411,8 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 		this.dropId = 'drop' + this.id;
 		this.drop = false;
 		DropdownNav.instances.push(this);
+		document.body.addEventListener(
+			'click', () => this.clickOutsideMenu.apply(this));
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -457,6 +459,11 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 		} else {
 			this.drop = false;
 		}
+		e.cancelBubble = true; // do not run clickOutsideMenu()
+	}
+	clickOutsideMenu() { // Hide the dropdown when document body is clicked
+		this.drop = false;
+		m.redraw();
 	}
 }
 DropdownNav.instances = [];
