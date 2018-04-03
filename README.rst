@@ -8,13 +8,12 @@ These are widgets for mithril_ applications, using Bootstrap 4.
 .. _Bootstrap: https://getbootstrap.com/docs/4.0/getting-started/introduction/
 
 mithril_ is an excellent, minimal Javascript single page application
-framework that is giving everybody else a lesson in YAGNI.
+framework that is giving everybody else a lesson in `YAGNI <http://wiki.c2.com/?YouArentGonnaNeedIt>`_.
 
 We are using the parts of ECMAScript 6 (ECMAScript 2015) that are
 directly supported by the major browsers. Our widgets are classes.
 
-Pull requests are extremely welcome! And advice is also appreciated,
-because I am not a Javascript expert.
+Pull requests are extremely welcome! And advice is also appreciated.
 
 
 Current versions of dependencies
@@ -49,11 +48,11 @@ Brief description of the contents
 - **SearchBox** creates a search input with a "clear" button to the right.
   You can just add it to your page and then set on it an *onchange()*
   function to do stuff whenever the user presses Enter on the search box.
+- **Select** creates a dropdown and support its typical features.
 - **SimpleTable** displays a table.
 - **SortedTable** displays a table which allows the user to click on each
   header to sort the rows by that column, ascending or descending.
 - **UL** makes it easy to render an unordered list.
-- **Option** creates an <option> inside a <select> dropdown.
 - **NavMenu** creates an actual Bootstrap_ navigation menu from data representing a menu structure.
 - **FormField** creates a Bootstrap_ form field, optionally with a label.
 - **PhoneField** creates a "tel" input for phone numbers.
@@ -65,8 +64,7 @@ Brief description of the contents
 TO DO
 =====
 
+- Use ES6 exports as soon as Firefox 60 appears in May 2018
 - Add creation date to Notification and display it, very small
 - Add more widgets
-- Perhaps reorganize this set of global variables into one *mw* object? This
-  would be to namespace them, since browsers STILL do not support ES6 imports.
 - https://docs.npmjs.com/getting-started/creating-node-modules
