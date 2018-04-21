@@ -4,7 +4,7 @@
 // Variables are HTML-escaped, unless marked with tmpl.trust().
 // How to use this? See the test() method
 
-export const tmpl = (function () {
+const tmpl = (function () {
 	const
 		reEscape = /[&<>'"]/g,
 		reUnescape = /&(?:amp|#38|lt|#60|gt|#62|apos|#39|quot|#34);/g,
