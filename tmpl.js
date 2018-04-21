@@ -33,7 +33,8 @@ const tmpl = (function () {
 		unescapeOne = function (m) {
 			return oUnescape[m];
 		},
-		replace = String.prototype.replace;
+		replace = String.prototype.replace,
+		privateSymbol = Symbol();
 	return (Object.freeze || Object)({
 		escape: function escape(s) {
 			return replace.call(s, reEscape, escapeOne);
@@ -42,30 +43,34 @@ const tmpl = (function () {
 			return replace.call(s, reUnescape, unescapeOne);
 		},
 		trust: function (s) {
-			return {_trustedAsHTML: s};
+			const trusted = {};
+			trusted[privateSymbol] = s;
+			return trusted;
 		},
 		render: function (pieces) {
-			const substitutions = [].slice.call(arguments, 1);
+			const expressions = [].slice.call(arguments, 1);
 			let result = pieces[0];
-			for (let i = 0; i < substitutions.length; ++i) {
-				const val = substitutions[i];
-				result += (val._trustedAsHTML ? val._trustedAsHTML
-					: this.escape(val)) + pieces[i + 1];
+			for (let i = 0; i < expressions.length; ++i) {
+				const val = expressions[i];
+				result += (
+					val[privateSymbol] === undefined ?
+					this.escape(val) : val[privateSymbol]
+				) + pieces[i + 1];
 			}
 			return result;
 		},
 		test: function () {
-			const ampersand = "&";
-			const div = "<div>";
+			const span = "<span>Filho & Sons</span>";
+			const attack = "<script>alert('ouch');</script>";
 			const safe = "<p>This is safe.</p>";
 			console.assert(
 				tmpl.render`
-				<p>Variables must be escaped: ${ampersand}</p>
-				<p>Another example: ${div}</p>
+				<p>Variables must be escaped: ${span}</p>
+				${attack}
 				<p>But don't escape trusted variables:</p>
 				${tmpl.trust(safe)}` === `
-				<p>Variables must be escaped: &amp;</p>
-				<p>Another example: &lt;div&gt;</p>
+				<p>Variables must be escaped: &lt;span&gt;Filho &amp; Sons&lt;/span&gt;</p>
+				&lt;script&gt;alert(&#39;ouch&#39;);&lt;/script&gt;
 				<p>But don't escape trusted variables:</p>
 				<p>This is safe.</p>`
 			);
