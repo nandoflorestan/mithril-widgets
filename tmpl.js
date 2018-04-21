@@ -1,8 +1,12 @@
 'use strict';
 
-// Solution for safe HTML template interpolation with ES6 strings.
+// Solution for micro HTML template interpolation with ES6 strings.
 // Variables are HTML-escaped, unless marked with tmpl.trust().
-// How to use this? See the test() method
+// How to use this? See the test() method.
+// Avoid using this! Please realize the security risk in forgetting
+// to put the *tmpl.render* prefix before any backtick strings that
+// contain HTML code. (ES6 template strings do not escape variables
+// and you might not notice the problem until you're attacked.)
 
 const tmpl = (function () {
 	const
