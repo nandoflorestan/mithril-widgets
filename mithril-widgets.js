@@ -566,7 +566,7 @@ class SearchBox {
 	setValue(val) {
 		this.value = val;
 		this.showNoResults = false;
-		if (this.onchange)  this.onchange(this.value);
+		if (this.onchange)  this.onchange(this.value, this.ctx);
 	}
 	clear(e) {
 		const input = e.target.parentNode.previousSibling;
