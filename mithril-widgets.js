@@ -537,13 +537,14 @@ class NavMenu {
 
 
 class SearchBox {
-	// In order to observe this, set onchange: function (value) {...}
+	// User code can use the event: `searchBox.changed.subscribe(fn);`
 	constructor(attrs) {
 		this.showNoResults = false;
 		Object.assign(this, attrs);  // shallow copy
 		this.inputAttrs = this.inputAttrs || {};
 		this.inputAttrs.onkeyup = this.inputAttrs.onkeyup ||
 			((e) => this.keyup.apply(this, [e]));
+		this.changed = new Event();
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -566,7 +567,7 @@ class SearchBox {
 	setValue(val) {
 		this.value = val;
 		this.showNoResults = false;
-		if (this.onchange)  this.onchange(this.value, this.ctx);
+		this.changed.broadcast(this.value);
 	}
 	clear(e) {
 		const input = e.target.parentNode.previousSibling;
