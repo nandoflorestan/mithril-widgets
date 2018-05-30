@@ -413,6 +413,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 		DropdownNav.instances.push(this);
 		document.body.addEventListener(
 			'click', () => this.clickOutsideMenu.apply(this));
+		this.entry.children.map((x) => x.click = new Event());
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -439,7 +440,11 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 							"a.dropdown-item", {
 								href: x.url,
 								title: x.tooltip || undefined,
-								onclick: (e) => self.click.apply(self, [e]),
+								id: x.id || undefined,
+								onclick: function (e) {
+									self.click.apply(self, [e]);
+									x.click.broadcast(x);
+								},
 							}, [
 								x.icon ? m(`i.fas.fa-${x.icon}`) : undefined,
 								x.label,
@@ -524,6 +529,14 @@ class NavMenu {
 				m("ul.navbar-nav.mr-auto", contents)
 			)
 		];
+	}
+	getMenuItemById(id) {
+		for (const menuItem of this.permanent) {
+			if (menuItem.id && menuItem.id === id) return menuItem;
+			for (const submenuItem of menuItem.children) {
+				if (submenuItem.id && submenuItem.id === id) return submenuItem;
+			}
+		}
 	}
 	view() {
 		let collapsNavs = this.collapsable ?
