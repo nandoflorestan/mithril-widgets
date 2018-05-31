@@ -530,11 +530,14 @@ class NavMenu {
 			)
 		];
 	}
-	getMenuItemById(id) {
-		for (const menuItem of this.permanent) {
+	// Search recursively across the menu tree
+	getMenuItemById(id, children=this.permanent) {
+		for (const menuItem of children) {
 			if (menuItem.id && menuItem.id === id) return menuItem;
-			for (const submenuItem of menuItem.children) {
-				if (submenuItem.id && submenuItem.id === id) return submenuItem;
+			// If it is not this try to look in the childrens
+			if (menuItem.children) {
+				const childrenMenuItem = this.getMenuItemById(id, menuItem.children);
+				if (childrenMenuItem) return childrenMenuItem;
 			}
 		}
 	}
