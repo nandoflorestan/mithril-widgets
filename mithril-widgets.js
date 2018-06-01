@@ -439,20 +439,23 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 						id: this.dropId,
 						'aria-labelledby': this.id,
 					},
-					this.entry.children.map(child => m(
-						"a.dropdown-item",
-						{
-							href: child.url,
+					this.entry.children.map(function(child) {
+						let childAtrrs = {
 							title: child.tooltip || undefined,
 							onclick: function (e) {
 								self.click.apply(self, [e]);
 								child.click.broadcast(e, child);
 							},
-						}, [
-							child.icon ? m(`i.fas.fa-${child.icon}`) : undefined,
-							child.label,
-						]
-					))
+						};
+						if (child.url) childAtrrs.href = child.url;
+
+						return m(
+							"a.dropdown-item", childAtrrs, [
+								child.icon ? m(`i.fas.fa-${child.icon}`) : undefined,
+								child.label,
+							]
+						);
+					})
 				)
 			]
 		);
