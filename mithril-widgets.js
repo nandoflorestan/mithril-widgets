@@ -413,7 +413,11 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 		DropdownNav.instances.push(this);
 		document.body.addEventListener(
 			'click', () => this.clickOutsideMenu.apply(this));
-		this.entry.children.map((x) => x.click = new Event());
+		for (const nav of this.entry.children) {
+			if (nav.click_event_name) {
+				nav.click = new Event(nav.click_event_name);
+			}
+		}
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -432,25 +436,23 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 					]
 				),
 				m(".dropdown-menu" + (this.drop ? '.show': ''), {
-					id: this.dropId,
-					'aria-labelledby': this.id,
+						id: this.dropId,
+						'aria-labelledby': this.id,
 					},
-					this.entry.children.map(
-						(x) => m(
-							"a.dropdown-item", {
-								href: x.url,
-								title: x.tooltip || undefined,
-								id: x.id || undefined,
-								onclick: function (e) {
-									self.click.apply(self, [e]);
-									x.click.broadcast(x);
-								},
-							}, [
-								x.icon ? m(`i.fas.fa-${x.icon}`) : undefined,
-								x.label,
-							]
-						)
-					)
+					this.entry.children.map(child => m(
+						"a.dropdown-item",
+						{
+							href: child.url,
+							title: child.tooltip || undefined,
+							onclick: function (e) {
+								self.click.apply(self, [e]);
+								child.click.broadcast(e, child);
+							},
+						}, [
+							child.icon ? m(`i.fas.fa-${child.icon}`) : undefined,
+							child.label,
+						]
+					))
 				)
 			]
 		);
@@ -530,19 +532,8 @@ class NavMenu {
 			)
 		];
 	}
-	// Search recursively across the menu tree
-	getMenuItemById(id, children=this.permanent) {
-		for (const menuItem of children) {
-			if (menuItem.id && menuItem.id === id) return menuItem;
-			// If it is not this try to look in the childrens
-			if (menuItem.children) {
-				const childrenMenuItem = this.getMenuItemById(id, menuItem.children);
-				if (childrenMenuItem) return childrenMenuItem;
-			}
-		}
-	}
 	view() {
-		let collapsNavs = this.collapsable ?
+		const collapsNavs = this.collapsable ?
 			this.renderToggler(this.renderMany(this.collapsable))
 			: [];
 		return m("nav.navbar" + this.classes,
