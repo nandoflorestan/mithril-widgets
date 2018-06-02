@@ -648,3 +648,29 @@ class ContentEditable { // TODO Observer in order to POST edited content
 		}, m.trust(this.text));
 	}
 }
+
+
+class Alert {
+    constructor() {
+        this.showing = false;
+        this.message = '';
+    }
+
+    show(message) {
+        this.showing = true;
+        this.message = m.trust(message);
+    }
+
+    hide() {
+        this.showing = false;
+        this.message = '';
+    }
+
+    view(vnode) {
+        const self = vnode.tag;
+        return m('.dv-alert', {style: self.showing ? 'display:inline-block;' : 'display:none;'}, [
+            m('div', self.message),
+            m('button.btn.btn-primary.btn-sm', {onclick: () => self.hide()},' Ok'),
+        ]);
+    }
+}
