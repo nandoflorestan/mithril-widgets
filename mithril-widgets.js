@@ -55,14 +55,14 @@ Array.prototype.sortBy = function (key, desc) {
 // PART 2: Useful helper functions and services
 
 function readCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for(let i=0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
+	const nameEQ = name + "=";
+	const ca = document.cookie.split(';');
+	for(let i=0; i < ca.length; i++) {
+		let c = ca[i];
+		while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+		if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+	}
+	return null;
 }
 
 const Unique = { // produce unique IDs
@@ -651,26 +651,41 @@ class ContentEditable { // TODO Observer in order to POST edited content
 
 
 class Alert {
-    constructor() {
-        this.showing = false;
-        this.message = '';
-    }
+	constructor() {
+		this.showing = false;
+	}
 
-    show(message) {
-        this.showing = true;
-        this.message = m.trust(message);
-    }
+	show(title, message) {
+		this.showing = true;
+		this.title = title;
+		this.message = message;
+	}
 
-    hide() {
-        this.showing = false;
-        this.message = '';
-    }
+	hide() {
+		this.showing = false;
+	}
 
-    view(vnode) {
-        const self = vnode.tag;
-        return m('.dv-alert', {style: self.showing ? 'display:inline-block;' : 'display:none;'}, [
-            m('div', self.message),
-            m('button.btn.btn-primary.btn-sm', {onclick: () => self.hide()},' Ok'),
-        ]);
-    }
+	view(vnode) {
+		const self = vnode.tag;
+		return m('.card-deck.dv-alert',
+					{style: self.showing ?
+						'display:inline-block;' :
+						'display:none;'
+					},
+					m('.card.nice-shadow',
+					[
+						m('.card-header.text-left.bg-info.text-white', self.title),
+						m('.card-body.text-left', self.message),
+						m('div.text-center',
+							m('button.btn.btn-primary.btn-sm',
+								{
+									onclick: () => self.hide(),
+									style: 'min-width: 5em; margin: 1em;',
+								},
+								' Ok'
+							),
+						)
+					])
+				);
+	}
 }
