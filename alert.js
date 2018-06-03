@@ -1,15 +1,11 @@
 class Alert {
-	constructor() {
-		this.showing = false;
-	}
-
-	show(title, message) {
+	constructor(title, message) {
 		this.showing = true;
 		this.title = title;
 		this.message = message;
 	}
 
-	hide() {
+	close() {
 		this.showing = false;
 	}
 
@@ -27,7 +23,7 @@ class Alert {
 						m('div.text-center',
 							m('button.btn.btn-primary.btn-sm',
 								{
-									onclick: () => self.hide(),
+									onclick: () => self.close(),
 									style: 'min-width: 5em; margin: 1em;',
 								},
 								' Ok'
