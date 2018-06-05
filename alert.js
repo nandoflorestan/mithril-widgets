@@ -1,8 +1,9 @@
 class Alert {
-	constructor(title, message) {
+	constructor({elementId, title, message}) {
 		this.showing = true;
 		this.title = title;
 		this.message = message;
+		m.mount(document.getElementById(elementId), this);
 	}
 
 	close() {
