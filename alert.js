@@ -12,7 +12,8 @@ class Alert {
 
 	view(vnode) {
 		const self = vnode.tag;
-		return m('.card-deck.dv-alert',
+		return m('.dv-alert-container',
+					m('.card-deck.dv-alert',
 					{style: self.showing ?
 						'display:inline-block;' :
 						'display:none;'
@@ -31,6 +32,7 @@ class Alert {
 							)
 						)
 					])
-				);
+				)
+			);
 	}
 }
