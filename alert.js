@@ -12,27 +12,27 @@ class Alert {
 
 	view(vnode) {
 		const self = vnode.tag;
-		return m('.dv-alert-container',
-					m('.card-deck.dv-alert',
-					{style: self.showing ?
-						'display:inline-block;' :
-						'display:none;'
-					},
-					m('.card.nice-shadow',
-					[
-						m('.card-header.text-left.bg-info.text-white', self.title),
-						m('.card-body.text-left', self.message),
-						m('div.text-center',
-							m('button.btn.btn-primary.btn-sm',
-								{
-									onclick: () => self.close(),
-									style: 'min-width: 5em; margin: 1em;',
-								},
-								' Ok'
+		return m('.dv-alert',
+					m('.card-deck.dv-alert-box',
+						{style: self.showing ?
+							'display:inline-block;' :
+							'display:none;'
+						},
+						m('.card.nice-shadow',
+						[
+							m('.card-header.text-left.bg-info.text-white', self.title),
+							m('.card-body.text-left', self.message),
+							m('div.text-center',
+								m('button.btn.btn-primary.btn-sm',
+									{
+										onclick: () => self.close(),
+										style: 'min-width: 5em; margin: 1em;',
+									},
+									' Ok'
+								)
 							)
-						)
-					])
-				)
-			);
+						])
+					)
+				);
 	}
 }
