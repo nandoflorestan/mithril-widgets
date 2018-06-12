@@ -13,9 +13,11 @@ Object.defineProperty(Object.prototype, 'pop', {
 	}
 });
 
-Object.defineProperty(Array.prototype, 'contains', {value: function (o) {
-	return this.indexOf(o) != -1;
-}});
+if (!Array.prototype.contains) {
+	Object.defineProperty(Array.prototype, 'contains', {value: function (o) {
+		return this.indexOf(o) != -1;
+	}});
+}
 
 Object.defineProperty(Object.prototype, 'deepValue', {
 	writable: false,
@@ -405,20 +407,24 @@ class SelectNav extends MenuStrategy {
 	}
 }
 class DropdownNav extends MenuStrategy { // An individual drop down menu
-	constructor(entry) { // *entry* is a model of the menu and its children
+	constructor(entry, bootstrap=4) { // *entry* is a model of the menu and its children
 		super(entry);
 		this.id = Unique.domID();
 		this.dropId = 'drop' + this.id;
 		this.drop = false;
+		this.bootstrap = bootstrap;
 		DropdownNav.instances.push(this);
 		document.body.addEventListener(
 			'click', () => this.clickOutsideMenu.apply(this));
+	}
+	getIconClasses(icon) {
+		return this.bootstrap === 4 ? 'fas.fa-' + icon : 'glyphicon glyphicon-' + icon;
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
 		// but Mithril makes it an object whose prototype is this instance.
 		const self = vnode.tag;
-		return m("div.nav-item.dropdown",
+		return m("li.nav-item.dropdown",
 			[
 				m("a.nav-link.dropdown-toggle", {
 					id: this.id,
@@ -426,7 +432,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 					title: this.entry.tooltip || undefined,
 					onclick: (e) => self.click.apply(self, [e]),
 					}, [
-						this.entry.icon ? m(`i.fas.fa-${this.entry.icon}`) : undefined,
+						this.entry.icon ? m(`i.${this.getIconClasses(this.entry.icon)}`) : undefined,
 						this.entry.label,
 					]
 				),
@@ -441,7 +447,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 								title: x.tooltip || undefined,
 								onclick: (e) => self.click.apply(self, [e]),
 							}, [
-								x.icon ? m(`i.fas.fa-${x.icon}`) : undefined,
+								x.icon ? m(`i.${this.getIconClasses(x.icon)}`) : undefined,
 								x.label,
 							]
 						)
@@ -469,11 +475,12 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 DropdownNav.instances = [];
 
 class NavMenu {
-	constructor(att, strategy=SelectNav) {
+	constructor(att, strategy=SelectNav, bootstrap=4) {
 		this.strategy = strategy;
 		this.permanent = att.permanent || [];
 		this.collapsable = att.collapsable;
 		this.classes = att.classes || '';
+		this.bootstrap = bootstrap;
 		// ".navbar-expand-lg.navbar-dark.bg-dark"
 
 		// Instantiate any sub-widgets once at construction time
@@ -481,7 +488,7 @@ class NavMenu {
 			if (!section)  continue;
 			for (const entry of section) {
 				if (entry.children && entry.children.length > 0) {
-					entry.widget = new this.strategy(entry);
+					entry.widget = new this.strategy(entry, this.bootstrap);
 				}
 			}
 		}
@@ -501,16 +508,19 @@ class NavMenu {
 				alt: entry.alt,
 				style: entry.style || 'margin-right:1rem;',
 			}, entry.attrs);
-			return m(
-				"a.nav-link",
-				{href: entry.url, title: entry.tooltip || undefined},
-				m("img", attrs)
+			return m('li',
+				m(
+					// "a.nav-link",
+					"a" + this.getMenuItemClasses(),
+					{href: entry.url, title: entry.tooltip || undefined},
+					m("img", attrs)
+				)
 			);
 		} else if (entry.children.length > 0) {
 			return m(entry.widget);
 		} else {
 			return m(
-				"a.nav-link",
+				"a" + this.getMenuItemClasses(),
 				{href: entry.url, title: entry.tooltip || undefined},
 				entry.label);
 		}
@@ -525,12 +535,20 @@ class NavMenu {
 			)
 		];
 	}
+	getMainMenuClasses() {
+		if (this.bootstrap === 4) return '.navbar';
+		else return '.navbar.navbar-inverse';
+	}
+	getMenuItemClasses() {
+		if (this.bootstrap === 4) return '.nav-link';
+		else return '.dropdown-toggle';
+	}
 	view() {
 		let collapsNavs = this.collapsable ?
 			this.renderToggler(this.renderMany(this.collapsable))
 			: [];
-		return m("nav.navbar" + this.classes,
-			this.renderMany(this.permanent).concat(collapsNavs)
+		return m("nav" + this.getMainMenuClasses() + this.classes,
+			m('ul.nav.navbar-nav.navbar.navbar-expand-sm', this.renderMany(this.permanent).concat(collapsNavs))
 		);
 	}
 }
