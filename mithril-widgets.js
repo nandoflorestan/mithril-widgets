@@ -536,7 +536,7 @@ class NavMenu {
 		];
 	}
 	getMainMenuClasses() {
-		if (this.bootstrap === 4) return '.navbar';
+		if (this.bootstrap === 4) return '.navbar.navbar-nav.navbar-expand-sm';
 		else return '.navbar.navbar-inverse';
 	}
 	getMenuItemClasses() {
@@ -547,8 +547,8 @@ class NavMenu {
 		let collapsNavs = this.collapsable ?
 			this.renderToggler(this.renderMany(this.collapsable))
 			: [];
-		return m("nav" + this.getMainMenuClasses() + this.classes,
-			m('ul.nav.navbar-nav.navbar.navbar-expand-sm', this.renderMany(this.permanent).concat(collapsNavs))
+		return m("nav." + this.getMainMenuClasses() + this.classes,
+			m('ul.navbar-nav.mr-auto.nav', this.renderMany(this.permanent).concat(collapsNavs))
 		);
 	}
 }
