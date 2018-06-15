@@ -527,15 +527,16 @@ class NavMenu {
 	}
 	renderToggler(contents) {
 		return [
-			m(".navbar-header",m("button.navbar-toggler.navbar-toggle.collapsed[aria-controls='navbarSupportedContent'][aria-expanded='false'][aria-label='Toggle navigation'][data-target='#navbarSupportedContent'][data-toggle='collapse'][type='button']",[m("span.navbar-toggler-icon.icon-bar"),
-					m("span.icon-bar"),
-					m("span.icon-bar")
-				]
-			)),
+			m(".navbar-header", m("button.navbar-toggler.navbar-toggle.collapsed[aria-controls='navbarSupportedContent'][aria-expanded='false'][aria-label='Toggle navigation'][data-target='#navbarSupportedContent'][data-toggle='collapse'][type='button']", this.getHamburgerIcon())
+			),
 			m(".collapse.navbar-collapse[id='navbarSupportedContent']",
 				m("ul.nav.navbar-nav.mr-auto", contents)
 			)
 		];
+	}
+	getHamburgerIcon() {
+		if (this.bootstrap === 4) return m("span.navbar-toggler-icon");
+		else return [m("span.icon-bar"), m("span.icon-bar"), m("span.icon-bar")];
 	}
 	getMainMenuClasses() {
 		if (this.bootstrap === 4) return '.navbar.navbar-nav.navbar-expand-lg navbar-dark bg-fair';
