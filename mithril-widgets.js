@@ -527,16 +527,18 @@ class NavMenu {
 	}
 	renderToggler(contents) {
 		return [
-			m("button.navbar-toggler[aria-controls='navbarSupportedContent'][aria-expanded='false'][aria-label='Toggle navigation'][data-target='#navbarSupportedContent'][data-toggle='collapse'][type='button']",
-				m("span.navbar-toggler-icon")
-			),
+			m(".navbar-header",m("button.navbar-toggler.navbar-toggle.collapsed[aria-controls='navbarSupportedContent'][aria-expanded='false'][aria-label='Toggle navigation'][data-target='#navbarSupportedContent'][data-toggle='collapse'][type='button']",[m("span.navbar-toggler-icon.icon-bar"),
+					m("span.icon-bar"),
+					m("span.icon-bar")
+				]
+			)),
 			m(".collapse.navbar-collapse[id='navbarSupportedContent']",
-				m("ul.navbar-nav.mr-auto", contents)
+				m("ul.nav.navbar-nav.mr-auto", contents)
 			)
 		];
 	}
 	getMainMenuClasses() {
-		if (this.bootstrap === 4) return '.navbar.navbar-nav.navbar-expand-sm';
+		if (this.bootstrap === 4) return '.navbar.navbar-nav.navbar-expand-lg navbar-dark bg-fair';
 		else return '.navbar.navbar-inverse';
 	}
 	getMenuItemClasses() {
@@ -544,11 +546,14 @@ class NavMenu {
 		else return '.dropdown-toggle';
 	}
 	view() {
-		let collapsNavs = this.collapsable ?
-			this.renderToggler(this.renderMany(this.collapsable))
-			: [];
+		// let collapsNavs = this.collapsable ?
+		// 	this.renderToggler(this.renderMany(this.collapsable))
+		// 	: [];
+		// return m("nav." + this.getMainMenuClasses() + this.classes,
+		// 	m('ul.navbar-nav.mr-auto.nav', this.renderMany(this.permanent).concat(collapsNavs))
+		// );
 		return m("nav." + this.getMainMenuClasses() + this.classes,
-			m('ul.navbar-nav.mr-auto.nav', this.renderMany(this.permanent).concat(collapsNavs))
+			m('.container', this.renderToggler(this.renderMany(this.permanent)))
 		);
 	}
 }
