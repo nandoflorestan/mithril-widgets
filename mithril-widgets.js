@@ -413,6 +413,11 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 		DropdownNav.instances.push(this);
 		document.body.addEventListener(
 			'click', () => this.clickOutsideMenu.apply(this));
+		for (const nav of this.entry.children) {
+			if (nav.click_event_name) {
+				nav.click = new Event(nav.click_event_name);
+			}
+		}
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -431,21 +436,26 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 					]
 				),
 				m(".dropdown-menu" + (this.drop ? '.show': ''), {
-					id: this.dropId,
-					'aria-labelledby': this.id,
+						id: this.dropId,
+						'aria-labelledby': this.id,
 					},
-					this.entry.children.map(
-						(x) => m(
-							"a.dropdown-item", {
-								href: x.url,
-								title: x.tooltip || undefined,
-								onclick: (e) => self.click.apply(self, [e]),
-							}, [
-								x.icon ? m(`i.fas.fa-${x.icon}`) : undefined,
-								x.label,
+					this.entry.children.map(function(child) {
+						let childAttrs = {
+							title: child.tooltip || undefined,
+							onclick: function (e) {
+								self.click.apply(self, [e]);
+								child.click.broadcast(e, child);
+							},
+						};
+						if (child.url) childAttrs.href = child.url;
+
+						return m(
+							"a.dropdown-item", childAttrs, [
+								child.icon ? m(`i.fas.fa-${child.icon}`) : undefined,
+								child.label,
 							]
-						)
-					)
+						);
+					})
 				)
 			]
 		);
@@ -526,7 +536,7 @@ class NavMenu {
 		];
 	}
 	view() {
-		let collapsNavs = this.collapsable ?
+		const collapsNavs = this.collapsable ?
 			this.renderToggler(this.renderMany(this.collapsable))
 			: [];
 		return m("nav.navbar" + this.classes,
