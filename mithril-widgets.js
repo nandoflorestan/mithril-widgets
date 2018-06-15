@@ -57,14 +57,14 @@ Array.prototype.sortBy = function (key, desc) {
 // PART 2: Useful helper functions and services
 
 function readCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for(let i=0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
+	const nameEQ = name + "=";
+	const ca = document.cookie.split(';');
+	for(let i=0; i < ca.length; i++) {
+		let c = ca[i];
+		while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+		if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+	}
+	return null;
 }
 
 const Unique = { // produce unique IDs
@@ -416,6 +416,11 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 		DropdownNav.instances.push(this);
 		document.body.addEventListener(
 			'click', () => this.clickOutsideMenu.apply(this));
+		for (const nav of this.entry.children) {
+			if (nav.click_event_name) {
+				nav.click = new Event(nav.click_event_name);
+			}
+		}
 	}
 	getIconClasses(icon) {
 		return this.bootstrap === 4 ? 'fas.fa-' + icon : 'glyphicon glyphicon-' + icon;
@@ -437,21 +442,26 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 					]
 				),
 				m(".dropdown-menu" + (this.drop ? '.show': ''), {
-					id: this.dropId,
-					'aria-labelledby': this.id,
+						id: this.dropId,
+						'aria-labelledby': this.id,
 					},
-					this.entry.children.map(
-						(x) => m(
-							"a.dropdown-item", {
-								href: x.url,
-								title: x.tooltip || undefined,
-								onclick: (e) => self.click.apply(self, [e]),
-							}, [
-								x.icon ? m(`i.${this.getIconClasses(x.icon)}`) : undefined,
-								x.label,
+					this.entry.children.map(function(child) {
+						let childAttrs = {
+							title: child.tooltip || undefined,
+							onclick: function (e) {
+								self.click.apply(self, [e]);
+								child.click.broadcast(e, child);
+							},
+						};
+						if (child.url) childAttrs.href = child.url;
+
+						return m(
+							"a.dropdown-item", childAttrs, [
+								child.icon ? m(`i.${this.getIconClasses(x.icon)}`)  : undefined,
+								child.label,
 							]
-						)
-					)
+						);
+					})
 				)
 			]
 		);
