@@ -457,7 +457,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 
 						return m(
 							"a.dropdown-item", childAttrs, [
-								child.icon ? m(`i.${this.getIconClasses(x.icon)}`)  : undefined,
+								child.icon ? m(`i.${self.getIconClasses(child.icon)}`) : undefined,
 								child.label,
 							]
 						);
