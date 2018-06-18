@@ -575,7 +575,7 @@ class NavMenu {
 		// 	m('ul.navbar-nav.mr-auto.nav', this.renderMany(this.permanent).concat(collapsNavs))
 		// );
 		return m("nav." + this.getMainMenuClasses() + this.classes,
-			m('.container', this.renderToggler(this.renderMany(this.permanent)))
+			m('div', this.renderToggler(this.renderMany(this.permanent)))
 		);
 	}
 }
