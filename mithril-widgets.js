@@ -490,6 +490,9 @@ class NavMenu {
 		this.collapsable = att.collapsable;
 		this.classes = att.classes || '';
 		this.bootstrap = bootstrap;
+		this.burgerMenuShow = false;
+		this.burgerMenuClick = new Event();
+		this.burgerMenuClick.subscribe(this.toggleBurgerMenu);
 		// ".navbar-expand-lg.navbar-dark.bg-dark"
 
 		// Instantiate any sub-widgets once at construction time
@@ -534,20 +537,30 @@ class NavMenu {
 		}
 	}
 	renderToggler(contents) {
+		const self = this;
 		return [
-			m(".navbar-header", m("button.navbar-toggler.navbar-toggle.collapsed[aria-controls='navbarSupportedContent'][aria-expanded='false'][aria-label='Toggle navigation'][data-target='#navbarSupportedContent'][data-toggle='collapse'][type='button']", this.getHamburgerIcon())
+			m(".navbar-header", {
+				onclick: function (e) {
+					self.burgerMenuClick.broadcast(self);
+				},
+			}, m(`button.navbar-toggler.navbar-toggle.collapsed[aria-controls='navbarSupportedContent'][aria-expanded='${this.burgerMenuShow}'][aria-label='Toggle navigation'][data-target='#navbarSupportedContent'][data-toggle='collapse'][type='button']`, this.getHamburgerIcon())
 			),
-			m(".collapse.navbar-collapse[id='navbarSupportedContent']",
+			m(".collapse.navbar-collapse[id='navbarSupportedContent']", {
+				class: this.burgerMenuShow ? 'show' : undefined
+			},
 				m("ul.nav.navbar-nav.mr-auto", contents)
 			)
 		];
+	}
+	toggleBurgerMenu(self) {
+		self.burgerMenuShow = !self.burgerMenuShow;
 	}
 	getHamburgerIcon() {
 		if (this.bootstrap === 4) return m("span.navbar-toggler-icon");
 		else return [m("span.icon-bar"), m("span.icon-bar"), m("span.icon-bar")];
 	}
 	getMainMenuClasses() {
-		if (this.bootstrap === 4) return '.navbar.navbar-nav.navbar-expand-lg navbar-dark bg-fair';
+		if (this.bootstrap === 4) return '.navbar.navbar-expand-lg navbar-dark bg-fair';
 		else return '.navbar.navbar-inverse';
 	}
 	getMenuItemClasses() {
