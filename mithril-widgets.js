@@ -422,9 +422,6 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 			}
 		}
 	}
-	getIconClasses(icon) {
-		return this.bootstrap === 4 ? 'fas.fa-' + icon : 'glyphicon glyphicon-' + icon;
-	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
 		// but Mithril makes it an object whose prototype is this instance.
@@ -437,7 +434,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 					title: this.entry.tooltip || undefined,
 					onclick: (e) => self.click.apply(self, [e]),
 					}, [
-						this.entry.icon ? m(`i.${this.getIconClasses(this.entry.icon)}`) : undefined,
+						this.entry.icon ? m(`i.fas.fa-${this.entry.icon}`) : undefined,
 						this.entry.label,
 					]
 				),
@@ -459,7 +456,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 
 						return m(
 							"a.dropdown-item", childAttrs, [
-								child.icon ? m(`i.${self.getIconClasses(child.icon)}`) : undefined,
+								child.icon ? m(`i.fas.fa-${child.icon}`) : undefined,
 								child.label,
 							]
 						);
@@ -522,7 +519,6 @@ class NavMenu {
 			}, entry.attrs);
 			return m('li',
 				m(
-					// "a.nav-link",
 					"a" + this.getMenuItemClasses(),
 					{href: entry.url, title: entry.tooltip || undefined},
 					m("img", attrs)
