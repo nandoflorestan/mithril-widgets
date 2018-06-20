@@ -426,7 +426,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
 		// but Mithril makes it an object whose prototype is this instance.
 		const self = vnode.tag;
-		return m("li.nav-item.dropdown",
+		return m("li.nav-item.dropdown" + (this.drop ? '.active': ''),
 			[
 				m("a.nav-link.dropdown-toggle", {
 					id: this.id,
