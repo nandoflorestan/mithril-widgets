@@ -1,0 +1,23 @@
+/* dv-alert*/
+.dv-alert {
+	position: absolute;
+	z-index: 2000;
+	top: 10%;
+	margin-left: auto;
+	margin-right: auto;
+	left: 0;
+	right: 0;
+	text-align: center;
+}
+.dv-alert-box {
+	min-width: 350px;
+	max-width: 40em;
+	height: 8em;
+}
+/* dv-alert*/
+
+.nice-shadow {
+	-webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+	-moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+}
