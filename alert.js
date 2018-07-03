@@ -16,13 +16,13 @@ class Alert {  // A bootstrap 4 popover. *message* can be a Mithril component.
 	view(vnode) {
 		const self = vnode.tag;
 		return m(
-			'.dv-alert',
-			m('.card-deck.dv-alert-box',
+			'.mw-alert',
+			m('.card-deck.mw-alert-box',
 				{style: self.showing ?
 					'display:inline-block;' :
 					'display:none;'
 				},
-				m('.card.nice-shadow', [
+				m('.card.mw-shadow', [
 					m('.card-header.text-left.bg-info.text-white', self.title),
 					m('.card-body.text-left', self.message),
 					m('div.text-center',
