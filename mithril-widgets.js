@@ -233,7 +233,13 @@ function request(d) {
 	const ret = {then: function (callback) { this.callback = callback; }};
 	promise.then(function (response) {
 		if (handle)  notifier.rmStatus(handle);
-		if (ret.callback) return ret.callback(response);
+		if (ret.callback) {
+			if (response.commands && response.commands.length) {
+				commandsManager.addCommands(response.commands);
+				commandsManager.runAll();
+			}
+			return ret.callback(response);
+		}
 		return response;
 	});
 	promise.catch(function (e) {
