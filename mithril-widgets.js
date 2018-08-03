@@ -242,10 +242,6 @@ function request(d) {
 	promise.then(function (response) {
 		if (handle)  notifier.rmStatus(handle);
 		if (ret.callback) {
-			if (response.commands && response.commands.length) {
-				commandsManager.addCommands(response.commands);
-				commandsManager.runAll();
-			}
 			return ret.callback(response);
 		}
 		return response;
