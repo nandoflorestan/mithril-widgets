@@ -222,6 +222,7 @@ var Notifier = { // A position:fixed component to display toasts
 
 
 function request(d) {
+	const self = this;
 	// Let user know a request is in progress and
 	// set the 'X-XSRF-Token' request header.
 	const notifier = d.pop('notifier') || Notifier;
@@ -230,7 +231,14 @@ function request(d) {
 	d.headers = d.headers || {};
 	d.headers['X-XSRF-Token'] = readCookie('XSRF-TOKEN');
 	const promise = m.request(d);
-	const ret = {then: function (callback) { this.callback = callback; }};
+	const ret = {
+		then: function (callback) {
+			this.callback = callback;
+			return this;
+		}, catch: function (errorCallback) {
+			this.errorCallback = errorCallback;
+		}
+	};
 	promise.then(function (response) {
 		if (handle)  notifier.rmStatus(handle);
 		if (ret.callback) {
@@ -256,6 +264,9 @@ function request(d) {
 		notifier.add(msg);
 		if (handle)  notifier.rmStatus(handle);
 		if (e.redirect)  window.location = e.redirect;
+		if (ret.errorCallback) {
+			return ret.errorCallback(e);
+		}
 	});
 	return ret;
 }
