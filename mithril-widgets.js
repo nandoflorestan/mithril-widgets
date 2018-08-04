@@ -240,6 +240,9 @@ function request(d) {
 		}
 	};
 	promise.then(function (response) {
+		if (response.commands && response.commands.length && serverCommands) {
+			serverCommands.run(response.commands);
+		}
 		if (handle)  notifier.rmStatus(handle);
 		if (ret.callback) {
 			return ret.callback(response);
