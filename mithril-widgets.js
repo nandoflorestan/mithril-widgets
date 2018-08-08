@@ -681,14 +681,14 @@ class ContentEditable { // TODO Observer in order to POST edited content
 
 
 class ServerCommands {
-	constructor(context, serverCommandsList) {
+	constructor(context, commands) {
 		this.context = context;
-		this.serverCommandsList = serverCommandsList;
+		this.commands = commands;
 	}
 
 	run(commands) {
 		for (const command of commands) {
-			this.serverCommandsList[command.name](this.context, command);
+			this.commands[command.name](this.context, command);
 		}
 	}
 }
