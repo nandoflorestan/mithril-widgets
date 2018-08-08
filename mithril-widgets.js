@@ -13,9 +13,11 @@ Object.defineProperty(Object.prototype, 'pop', {
 	}
 });
 
-Object.defineProperty(Array.prototype, 'contains', {value: function (o) {
-	return this.indexOf(o) != -1;
-}});
+if (!Array.prototype.contains) {
+	Object.defineProperty(Array.prototype, 'contains', {value: function (o) {
+		return this.indexOf(o) != -1;
+	}});
+}
 
 Object.defineProperty(Object.prototype, 'deepValue', {
 	writable: false,
@@ -674,5 +676,19 @@ class ContentEditable { // TODO Observer in order to POST edited content
 			contenteditable: true,
 			onchange: m.withAttr('innerText', (t) => this.text = t),
 		}, m.trust(this.text));
+	}
+}
+
+
+class ServerCommands {
+	constructor(context, serverCommandsList) {
+		this.context = context;
+		this.serverCommandsList = serverCommandsList;
+	}
+
+	run(commands) {
+		for (const command of commands) {
+			this.serverCommandsList[command.name](this.context, command);
+		}
 	}
 }
