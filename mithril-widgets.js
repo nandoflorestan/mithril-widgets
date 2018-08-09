@@ -243,7 +243,7 @@ function request(d) {
 	};
 	promise.then(function (response) {
 		if (response.commands && response.commands.length && serverCommands) {
-			serverCommands.run(response.commands);
+			serverCommands.runAll(response.commands);
 		}
 		if (handle)  notifier.rmStatus(handle);
 		if (ret.callback) {
@@ -686,9 +686,13 @@ class ServerCommands {
 		this.commands = commands;
 	}
 
-	run(commands) {
+	run(command) {
+		this.commands[command.name](this.context, command);
+	}
+
+	runAll(commands) {
 		for (const command of commands) {
-			this.commands[command.name](this.context, command);
+			this.run(command);
 		}
 	}
 }
