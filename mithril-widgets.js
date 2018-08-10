@@ -681,9 +681,13 @@ class ContentEditable { // TODO Observer in order to POST edited content
 
 
 class ServerCommands {
-	constructor(context, commands) {
+	constructor(context) {
 		this.context = context;
-		this.commands = commands;
+		this.commands = {};
+	}
+
+	add(commandName, command) {
+		this.commands[commandName] = command;
 	}
 
 	run(command) {
