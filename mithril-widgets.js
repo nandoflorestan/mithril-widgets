@@ -35,7 +35,7 @@ Object.defineProperty(Object.prototype, 'deepValue', {
 	}
 });
 
-Array.prototype.sortBy = function (key, desc) {
+Object.defineProperty(Array.prototype, 'sortBy', {value: function (key, desc) {
 	return this.sort(function(a, b) {
 		let va = a.deepValue(key);
 		let vb = b.deepValue(key);
@@ -51,8 +51,7 @@ Array.prototype.sortBy = function (key, desc) {
 			return (va < vb) ? -1 : ((va > vb) ? 1 : 0);
 		}
 	});
-};
-
+}});
 
 // PART 2: Useful helper functions and services
 
