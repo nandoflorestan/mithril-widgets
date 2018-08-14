@@ -242,6 +242,7 @@ var Notifier = { // A position:fixed component to display toasts
 
 
 function request(d) {
+	const self = this;
 	// Let user know a request is in progress and
 	// set the 'X-XSRF-Token' request header.
 	const notifier = d.pop('notifier') || Notifier;
@@ -250,10 +251,22 @@ function request(d) {
 	d.headers = d.headers || {};
 	d.headers['X-XSRF-Token'] = readCookie('XSRF-TOKEN');
 	const promise = m.request(d);
-	const ret = {then: function (callback) { this.callback = callback; }};
+	const ret = {
+		then: function (callback) {
+			this.callback = callback;
+			return this;
+		}, catch: function (errorCallback) {
+			this.errorCallback = errorCallback;
+		}
+	};
 	promise.then(function (response) {
+		if (response.commands && response.commands.length && serverCommands) {
+			serverCommands.runAll(response.commands);
+		}
 		if (handle)  notifier.rmStatus(handle);
-		if (ret.callback) return ret.callback(response);
+		if (ret.callback) {
+			return ret.callback(response);
+		}
 		return response;
 	});
 	promise.catch(function (e) {
@@ -270,6 +283,9 @@ function request(d) {
 		notifier.add(msg);
 		if (handle)  notifier.rmStatus(handle);
 		if (e.redirect)  window.location = e.redirect;
+		if (ret.errorCallback) {
+			return ret.errorCallback(e);
+		}
 	});
 	return ret;
 }
@@ -709,5 +725,27 @@ class ContentEditable { // TODO Observer in order to POST edited content
 			contenteditable: true,
 			onchange: m.withAttr('innerText', (t) => this.text = t),
 		}, m.trust(this.text));
+	}
+}
+
+
+class ServerCommands {
+	constructor(context) {
+		this.context = context;
+		this.commands = {};
+	}
+
+	add(commandName, command) {
+		this.commands[commandName] = command;
+	}
+
+	run(command) {
+		this.commands[command.name](this.context, command);
+	}
+
+	runAll(commands) {
+		for (const command of commands) {
+			this.run(command);
+		}
 	}
 }
