@@ -232,7 +232,6 @@ function request(d) {
 	d.withCredentials = true;
 	d.headers = d.headers || {};
 	d.headers['X-XSRF-Token'] = readCookie('XSRF-TOKEN');
-	const promise = m.request(d);
 	const ret = {
 		then: function (callback) {
 			this.callback = callback;
@@ -241,7 +240,7 @@ function request(d) {
 			this.errorCallback = errorCallback;
 		}
 	};
-	promise.then(function (response) {
+	m.request(d).then(function (response) {
 		if (response.commands && response.commands.length && serverCommands) {
 			serverCommands.runAll(response.commands);
 		}
@@ -250,8 +249,8 @@ function request(d) {
 			return ret.callback(response);
 		}
 		return response;
-	});
-	promise.catch(function (e) {
+	}).catch(function (e) {
+		console.error(e);
 		const msg = {level: 'danger'};
 		if (e.error_title)  msg.title = e.error_title;
 		if (e.error_msg)  msg.plain = e.error_msg;
