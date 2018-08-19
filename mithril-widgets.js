@@ -53,24 +53,6 @@ Object.defineProperty(Array.prototype, 'sortBy', {value: function (key, desc) {
 	});
 }});
 
-// Array.prototype.sortBy = function (key, desc) {
-// 	return this.sort(function(a, b) {
-// 		let va = a.deepValue(key);
-// 		let vb = b.deepValue(key);
-// 		if (typeof va === "string") {
-// 			va = va.toLowerCase();
-// 		}
-// 		if (typeof vb === "string") {
-// 			vb = vb.toLowerCase();
-// 		}
-// 		if (desc) {
-// 			return (va > vb) ? -1 : ((va < vb) ? 1 : 0);
-// 		} else {
-// 			return (va < vb) ? -1 : ((va > vb) ? 1 : 0);
-// 		}
-// 	});
-// };
-
 
 // PART 2: Useful helper functions and services
 
@@ -250,7 +232,6 @@ function request(d) {
 	d.withCredentials = true;
 	d.headers = d.headers || {};
 	d.headers['X-XSRF-Token'] = readCookie('XSRF-TOKEN');
-	const promise = m.request(d);
 	const ret = {
 		then: function (callback) {
 			this.callback = callback;
@@ -259,7 +240,7 @@ function request(d) {
 			this.errorCallback = errorCallback;
 		}
 	};
-	promise.then(function (response) {
+	m.request(d).then(function (response) {
 		if (response.commands && response.commands.length && serverCommands) {
 			serverCommands.runAll(response.commands);
 		}
@@ -268,8 +249,8 @@ function request(d) {
 			return ret.callback(response);
 		}
 		return response;
-	});
-	promise.catch(function (e) {
+	}).catch(function (e) {
+		console.error(e);
 		const msg = {level: 'danger'};
 		if (e.error_title)  msg.title = e.error_title;
 		if (e.error_msg)  msg.plain = e.error_msg;
