@@ -223,8 +223,7 @@ var Notifier = { // A position:fixed component to display toasts
 };
 
 
-function request(d) {
-	const self = this;
+function request(d) { // jshint ignore:line
 	// Let user know a request is in progress and
 	// set the 'X-XSRF-Token' request header.
 	const notifier = d.pop('notifier') || Notifier;
@@ -272,7 +271,8 @@ function request(d) {
 }
 
 
-class SimpleTable {  // The *rows* argument should be an array of arrays
+ // The *rows* argument should be an array of arrays
+class SimpleTable { // jshint ignore:line
 	constructor({headers=[], rows=[], classes='.table .table-bordered', caption=null}={}) {
 		this.headers = headers;
 		this.rows = rows;
@@ -291,7 +291,7 @@ class SimpleTable {  // The *rows* argument should be an array of arrays
 }
 
 
-class SortedTable {
+class SortedTable { // jshint ignore:line
 	// The constructor takes these params and sorts the data:
 	// classes: str,
 	// headers: [{key: sort_key, title: title}...],
@@ -348,7 +348,7 @@ class SortedTable {
 }
 
 
-class Select {
+class Select { // jshint ignore:line
 	constructor({groups=null, opts=null, css='', onChange=null}={}) {
 		if (!groups && !opts || groups && opts)  throw new Error(
 			"Pass either *groups* or *opts* to Select constructor.");
@@ -399,7 +399,7 @@ class MenuStrategy {
 	}
 }
 class SelectNav extends MenuStrategy {
-	view(vnode) {
+	view() {
 		return m(
 			"select", {
 				onchange: m.withAttr('value', (url) => window.location = url),
@@ -498,7 +498,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 }
 DropdownNav.instances = [];
 
-class NavMenu {
+class NavMenu { // jshint ignore:line
 	constructor(att, strategy=SelectNav, bootstrap=4) {
 		this.strategy = strategy;
 		this.permanent = att.permanent || [];
@@ -555,7 +555,7 @@ class NavMenu {
 		const self = this;
 		return [
 			m(".navbar-header", {
-				onclick: function (e) {
+				onclick: function () {
 					self.burgerMenuClick.broadcast(self);
 				},
 			}, m(`button.navbar-toggler.navbar-toggle.collapsed[aria-controls='navbarSupportedContent'][aria-expanded='${this.burgerMenuShow}'][aria-label='Toggle navigation'][data-target='#navbarSupportedContent'][data-toggle='collapse'][type='button']`, this.getHamburgerIcon())
@@ -596,7 +596,7 @@ class NavMenu {
 }
 
 
-class SearchBox {
+class SearchBox { // jshint ignore:line
 	// User code can use the event: `searchBox.changed.subscribe(fn);`
 	constructor(attrs) {
 		this.showNoResults = false;
@@ -641,7 +641,8 @@ class SearchBox {
 }
 
 
-class FormField { // A bootstrap 4 form field, maybe with associated label
+// A bootstrap 4 form field, maybe with associated label
+class FormField { // jshint ignore:line
 	constructor(label, input) {
 		this.input = input;
 		if (!input.id)  input.id = Unique.domID();
@@ -661,7 +662,7 @@ class FormField { // A bootstrap 4 form field, maybe with associated label
 }
 
 
-class PhoneField {
+class PhoneField { // jshint ignore:line
 	// User code can use the event: `phonefield.changed.subscribe(fn);`
 	constructor({value='', name='', placeholder='', css='', type='tel'}={}) {
 		this.id = Unique.domID();
@@ -690,7 +691,8 @@ class PhoneField {
 }
 
 
-class ContentEditable { // TODO Observer in order to POST edited content
+class ContentEditable { // jshint ignore:line
+	// TODO Observer in order to POST edited content
 	// from http://jsbin.com/vihuyi/edit?js,output
 	constructor(text) {
 		this._text = text;
@@ -710,7 +712,7 @@ class ContentEditable { // TODO Observer in order to POST edited content
 }
 
 
-class ServerCommands {
+class ServerCommands { // jshint ignore:line
 	constructor(context) {
 		this.context = context;
 		this.commands = {};

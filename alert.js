@@ -1,7 +1,7 @@
 "use strict";
 
-
-class Alert {  // A bootstrap 4 popover. *message* can be a Mithril component.
+// A bootstrap 4 popover. *message* can be a Mithril component.
+class Alert {  // jshint ignore:line
 	constructor({elementId, title, message}) {
 		this.showing = true;
 		this.title = title;
