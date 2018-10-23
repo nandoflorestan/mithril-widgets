@@ -30,6 +30,7 @@ Object.defineProperty(Object.prototype, 'deepValue', {
 		for (const k of keyParts)  {
 			val = val[k];
 			if (val === undefined) return undefined;
+			else if (val === null) return null;
 		}
 		return val;
 	}
