@@ -238,6 +238,7 @@ function request(d) { // jshint ignore:line
 			return this;
 		}, catch: function (errorCallback) {
 			this.errorCallback = errorCallback;
+			return this;
 		}
 	};
 	m.request(d).then(function (response) {
@@ -250,18 +251,23 @@ function request(d) { // jshint ignore:line
 		}
 		return response;
 	}).catch(function (e) {
-		console.error(e);
-		const msg = {level: 'danger'};
-		if (e.error_title)  msg.title = e.error_title;
-		if (e.error_msg)  msg.plain = e.error_msg;
-		if (e.error_title || e.error_msg)  {
-		} else if (typeof e === 'string') {
-			msg.plain = e;
-		} else {
-			msg.title = 'Unexpected error';
-			msg.plain = String(e);
+		if (e.toasts) {  // for kerno-like return values
+			for (const obj of e.toasts) {
+				notifier.add(obj);
+			}
+		} else {  // for bag-like return values
+			const msg = {level: 'danger'};
+			if (e.error_title)  msg.title = e.error_title;
+			if (e.error_msg)  msg.plain = e.error_msg;
+			if (e.error_title || e.error_msg)  {
+			} else if (typeof e === 'string') {  // for returned strings
+				msg.plain = e;
+			} else {  // for obscure return values
+				msg.title = 'Error communicating with server';
+				msg.plain = String(e);
+			}
+			notifier.add(msg);
 		}
-		notifier.add(msg);
 		if (handle)  notifier.rmStatus(handle);
 		if (e.redirect)  window.location = e.redirect;
 		if (ret.errorCallback) {
