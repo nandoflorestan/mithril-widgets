@@ -112,6 +112,7 @@ class Notification {  // TODO icons
 		if (!this.level)  this.level = 'warning';
 		if (Notification.levels.indexOf(this.level) === -1)
 			console.error('Message with wrong level:', this);
+		this.icon = Notification.icons[Notification.levels.indexOf(this.level)];
 	}
 	get readingTime() {
 		// Estimate the time one takes to read some text
@@ -128,12 +129,16 @@ class Notification {  // TODO icons
 		// but Mithril makes it an object whose prototype is this instance.
 		const self = vnode.tag;
 		return m('div.notification', [
-			self.title ? m('h5', self.title) : null,
-			self.html ? m.trust(self.html) : self.plain,
+			m(`big.fas.fa-${self.icon}`),
+			m('div', [
+				self.title ? m('h4', self.title) : null,
+				self.html ? m.trust(self.html) : self.plain,
+			])
 		]);
 	}
 }
-Notification.levels = ['success', 'info', 'secondary', 'light', 'dark', 'warning', 'danger'];
+Notification.levels = ['success', 'danger' , 'info', 'warning', 'secondary', 'light', 'dark'];
+Notification.icons = ['check-circle', 'exclamation-circle', 'info-circle', 'exclamation', 'info', 'info', 'info'];
 Notification.speed = 90; // Takes one second to read 11 chars
 Notification.min = 3000; // but the minimum is 3 seconds
 
