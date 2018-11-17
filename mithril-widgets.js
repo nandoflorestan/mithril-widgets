@@ -130,10 +130,8 @@ class Notification {  // TODO icons
 		const self = vnode.tag;
 		return m('div.notification', [
 			m(`big.fas.fa-${self.icon}`),
-			m('div', [
-				self.title ? m('h4', self.title) : null,
-				self.html ? m.trust(self.html) : self.plain,
-			])
+			self.title ? m('h5', self.title) : null,
+			self.html ? m.trust(self.html) : m('p', self.plain)
 		]);
 	}
 }
@@ -141,7 +139,6 @@ Notification.levels = ['success', 'danger' , 'info', 'warning', 'secondary', 'li
 Notification.icons = ['check-circle', 'exclamation-circle', 'info-circle', 'exclamation', 'info', 'info', 'info'];
 Notification.speed = 90; // Takes one second to read 11 chars
 Notification.min = 3000; // but the minimum is 3 seconds
-
 var Notifier = { // A position:fixed component to display toasts
 	history: [],
 	index: -1,
@@ -207,8 +204,8 @@ var Notifier = { // A position:fixed component to display toasts
 		var content, level;
 		if (dis) { // display status
 			var statstrings = Object.values(this.statuses);
-			content = m('small', statstrings.length ?
-				m(new UL(null, statstrings)) : 'Notifications');
+			content = m('small.btn.btn-sm', statstrings.length ?
+				m(new UL(null, statstrings)) : [m('span.fas.fa-bell'),' Notifications']);
 			level = 'dark';
 		} else { // display a message
 			const cur = this.getCurrent();
@@ -217,14 +214,15 @@ var Notifier = { // A position:fixed component to display toasts
 		}
 		const cls = ['starting', 'fading out'].contains(this.phase) ? '.fade-out' : '';
 		const arr = [];
-		if (!dis) {
-			arr.push(m('button.btn.btn-secondary.btn-sm[title=Dismiss]', {onclick: Notifier.next}, '×'));
-		}
+		const buttons = [];
 		if (this.index > (dis ? -1 : 0)) {
-			arr.push(m('button.btn.btn-secondary.btn-sm[title=Previous]', {onclick: Notifier.prev}, '<'));
+			buttons.push(m('button.btn.btn-secondary.btn-sm[title=Previous]', {onclick: Notifier.prev}, '<'));
+		}
+		if (!dis) {
+			buttons.push(m('button.btn.btn-secondary.btn-sm[title=Dismiss]', {onclick: Notifier.next}, '×'));
 		}
 		arr.push(content);
-		return m(`.notifier${cls}.alert.alert-${level}[role="alert"]`, arr);
+		return m(`.flex.notifier${cls}.alert.alert-${level}[role="alert"]`, [arr, buttons.length ? m('div.buttons', buttons): null]);
 	},
 };
 
