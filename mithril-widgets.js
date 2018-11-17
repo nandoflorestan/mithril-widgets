@@ -110,9 +110,11 @@ class Notification {  // TODO icons
 	constructor(d) {
 		Object.assign(this, d);  // shallow copy
 		if (!this.level)  this.level = 'warning';
-		if (Notification.levels.indexOf(this.level) === -1)
+		if (Notification.levels.indexOf(this.level) === -1) {
 			console.error('Message with wrong level:', this);
-		this.icon = Notification.icons[Notification.levels.indexOf(this.level)];
+		} else {
+			this.icon = Notification.icons[Notification.levels.indexOf(this.level)];
+		}
 	}
 	get readingTime() {
 		// Estimate the time one takes to read some text
