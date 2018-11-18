@@ -134,7 +134,7 @@ class Notification {
 		return m('div.notification', [
 			m(`big.fas.fa-${self.icon}`),
 			self.title ? m('h5', self.title) : null,
-			self.html ? m.trust(self.html) : m('p', self.plain)
+			self.html ? m.trust(self.html) : m('div', self.plain)
 		]);
 	}
 }
