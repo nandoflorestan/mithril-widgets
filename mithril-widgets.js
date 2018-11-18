@@ -106,14 +106,15 @@ class UL { // Unordered list
 }
 
 
-class Notification {  // TODO icons
+class Notification {
 	constructor(d) {
 		Object.assign(this, d);  // shallow copy
 		if (!this.level)  this.level = 'warning';
 		if (Notification.levels.indexOf(this.level) === -1) {
 			console.error('Message with wrong level:', this);
+			this.icon = Notification.icons.info;
 		} else {
-			this.icon = Notification.icons[Notification.levels.indexOf(this.level)];
+			this.icon = Notification.icons[this.level];
 		}
 	}
 	get readingTime() {
@@ -137,8 +138,14 @@ class Notification {  // TODO icons
 		]);
 	}
 }
-Notification.levels = ['success', 'danger' , 'info', 'warning', 'secondary', 'light', 'dark'];
-Notification.icons = ['check-circle', 'exclamation-circle', 'info-circle', 'exclamation', 'info', 'info', 'info'];
+// Bootstrap also has 'secondary', 'light' and 'dark', but these are not considered useful graveness levels.
+Notification.levels = ['success', 'info', 'warning', 'danger']; // mind the order!
+Notification.icons = {
+	success: 'check-circle',
+	info: 'info-circle',
+	warning: 'exclamation',
+	danger: 'exclamation-circle',
+};
 Notification.speed = 90; // Takes one second to read 11 chars
 Notification.min = 3000; // but the minimum is 3 seconds
 var Notifier = { // A position:fixed component to display toasts
