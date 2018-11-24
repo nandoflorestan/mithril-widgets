@@ -1,6 +1,6 @@
 /* mw-alert*/
 .mw-alert {
-	position: absolute;
+	position: fixed;
 	z-index: 2000;
 	top: 10%;
 	margin-left: auto;
