@@ -132,8 +132,10 @@ class Notification {
 		// but Mithril makes it an object whose prototype is this instance.
 		const self = vnode.tag;
 		return m('div.notification', [
-			m(`big.fas.fa-${self.icon}`),
-			self.title ? m('h5', self.title) : null,
+			self.title ? m('h5', [
+				m(`span.fas.fa-${self.icon}`),
+				m('span', self.title),
+			]) : null,
 			self.html ? m.trust(self.html) : m('div', self.plain)
 		]);
 	}
