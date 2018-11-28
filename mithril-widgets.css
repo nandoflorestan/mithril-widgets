@@ -1,5 +1,5 @@
-/* mw-alert*/
-.mw-alert {
+/* mw-popover*/
+.mw-popover {
 	position: fixed;
 	z-index: 2000;
 	top: 10%;
@@ -9,12 +9,13 @@
 	right: 0;
 	text-align: center;
 }
-.mw-alert-box {
+.mw-popover-box {
+	display: inline-block;
 	min-width: 350px;
 	max-width: 40em;
 	height: 8em;
 }
-/* mw-alert*/
+/* mw-popover*/
 
 .mw-shadow {
 	-webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
