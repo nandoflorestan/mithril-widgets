@@ -106,12 +106,16 @@ class UL { // Unordered list
 }
 
 
-class Notification {  // TODO icons
+class Notification {
 	constructor(d) {
 		Object.assign(this, d);  // shallow copy
 		if (!this.level)  this.level = 'warning';
-		if (Notification.levels.indexOf(this.level) === -1)
+		if (Notification.levels.indexOf(this.level) === -1) {
 			console.error('Message with wrong level:', this);
+			this.icon = Notification.icons.info;
+		} else {
+			this.icon = Notification.icons[this.level];
+		}
 	}
 	get readingTime() {
 		// Estimate the time one takes to read some text
@@ -128,15 +132,24 @@ class Notification {  // TODO icons
 		// but Mithril makes it an object whose prototype is this instance.
 		const self = vnode.tag;
 		return m('div.notification', [
-			self.title ? m('h5', self.title) : null,
-			self.html ? m.trust(self.html) : self.plain,
+			self.title ? m('h5', [
+				m(`span.fas.fa-${self.icon}`),
+				m('span', self.title),
+			]) : null,
+			self.html ? m.trust(self.html) : m('div', self.plain)
 		]);
 	}
 }
-Notification.levels = ['success', 'info', 'secondary', 'light', 'dark', 'warning', 'danger'];
+// Bootstrap also has 'secondary', 'light' and 'dark', but these are not considered useful graveness levels.
+Notification.levels = ['success', 'info', 'warning', 'danger']; // mind the order!
+Notification.icons = {
+	success: 'check-circle',
+	info: 'info-circle',
+	warning: 'exclamation',
+	danger: 'exclamation-circle',
+};
 Notification.speed = 90; // Takes one second to read 11 chars
 Notification.min = 3000; // but the minimum is 3 seconds
-
 var Notifier = { // A position:fixed component to display toasts
 	history: [],
 	index: -1,
@@ -202,8 +215,8 @@ var Notifier = { // A position:fixed component to display toasts
 		var content, level;
 		if (dis) { // display status
 			var statstrings = Object.values(this.statuses);
-			content = m('small', statstrings.length ?
-				m(new UL(null, statstrings)) : 'Notifications');
+			content = m('small.btn.btn-sm', statstrings.length ?
+				m(new UL(null, statstrings)) : [m('span.fas.fa-bell'),' Notifications']);
 			level = 'dark';
 		} else { // display a message
 			const cur = this.getCurrent();
@@ -212,14 +225,15 @@ var Notifier = { // A position:fixed component to display toasts
 		}
 		const cls = ['starting', 'fading out'].contains(this.phase) ? '.fade-out' : '';
 		const arr = [];
-		if (!dis) {
-			arr.push(m('button.btn.btn-secondary.btn-sm[title=Dismiss]', {onclick: Notifier.next}, '×'));
-		}
+		const buttons = [];
 		if (this.index > (dis ? -1 : 0)) {
-			arr.push(m('button.btn.btn-secondary.btn-sm[title=Previous]', {onclick: Notifier.prev}, '<'));
+			buttons.push(m('button.btn.btn-secondary.btn-sm[title=Previous]', {onclick: Notifier.prev}, '<'));
+		}
+		if (!dis) {
+			buttons.push(m('button.btn.btn-secondary.btn-sm[title=Dismiss]', {onclick: Notifier.next}, '×'));
 		}
 		arr.push(content);
-		return m(`.notifier${cls}.alert.alert-${level}[role="alert"]`, arr);
+		return m(`.flex.notifier${cls}.alert.alert-${level}[role="alert"]`, [arr, buttons.length ? m('div.buttons', buttons): null]);
 	},
 };
 
