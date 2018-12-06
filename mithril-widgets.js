@@ -215,7 +215,7 @@ var Notifier = { // A position:fixed component to display toasts
 		var content, level;
 		if (dis) { // display status
 			var statstrings = Object.values(this.statuses);
-			content = m('small.btn.btn-sm', statstrings.length ?
+			content = m('small', statstrings.length ?
 				m(new UL(null, statstrings)) : [m('span.fas.fa-bell'),' Notifications']);
 			level = 'dark';
 		} else { // display a message
