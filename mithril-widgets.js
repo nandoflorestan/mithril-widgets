@@ -233,7 +233,10 @@ var Notifier = { // A position:fixed component to display toasts
 			buttons.push(m('button.btn.btn-secondary.btn-sm[title=Dismiss]', {onclick: Notifier.next}, '×'));
 		}
 		arr.push(content);
-		return m(`.flex.notifier${cls}.alert.alert-${level}[role="alert"]`, [arr, buttons.length ? m('div.buttons', buttons): null]);
+		return m(`.flex.notifier${cls}.alert.alert-${level}[role="alert"]`, [
+			arr,
+			buttons.length ? m('.text-nowrap', buttons): null,
+		]);
 	},
 };
 
