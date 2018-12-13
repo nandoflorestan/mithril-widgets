@@ -2,9 +2,8 @@
 
 // A bootstrap 4 popover. *message* can be a Mithril component.
 class Popover {  // jshint ignore:line
-	constructor({elementId, title, message}) {
+	constructor() {
 		this.showing = false;
-		m.mount(document.getElementById(elementId), this);
 	}
 
 	message({title, message}) {
