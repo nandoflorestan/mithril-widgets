@@ -17,12 +17,12 @@ class Popover {  // jshint ignore:line
 		const self = vnode.tag;
 		return self.showing ? m(
 			'.mw-popover',
-			m('.card-deck.mw-popover-box',
-				m('.card.mw-shadow', [
+			[m('.card-deck.mw-popover-box',
+				[m('.card.mw-shadow', [
 					m('.card-header.text-left.bg-info.text-white', self.title),
-					m('.card-body.text-left', self.message)
-				])
-			)
+					m('.card-body.text-left', [self.message])
+				])]
+			)]
 		) : undefined;
 	}
 }
