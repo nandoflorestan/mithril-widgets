@@ -1,14 +1,18 @@
 "use strict";
 
-// A bootstrap 4 popover. *message* can be a Mithril component.
-class _Popover {  // jshint ignore:line
-	constructor() {
-		this.showing = true;
-	}
-
-	oninit(vnode) {
-		// Add this _popover to user class
-		vnode.attrs.ctx._popover = vnode.state;
+// A bootstrap 4 popover. *content* can be a Mithril component.
+//	class PopoverContent {
+//		set popover(popover) {
+//			this._popover = popover;
+//		}
+//		get title()   { return string or mithril nodes. }
+//		view() { return string or mithril nodes. }
+//	}
+class Popover {  // jshint ignore:line
+	constructor(content) {
+		this._content = content;
+		content.popover = this;
+		this.showing = false;
 	}
 
 	toggle() {
@@ -20,8 +24,8 @@ class _Popover {  // jshint ignore:line
 			'.mw-popover',
 			[m('.card-deck.mw-popover-box',
 				[m('.card.mw-shadow', [
-					m('.card-header.text-left.bg-info.text-white', [vnode.attrs.title]),
-					m('.card-body.text-left', [vnode.attrs.message])
+					m('.card-header.text-left.bg-info.text-white', this._content.title),
+					m('.card-body.text-left', this._content.view())
 				])]
 			)]
 		) : undefined;
