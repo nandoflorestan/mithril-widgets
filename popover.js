@@ -1,6 +1,7 @@
 "use strict";
 
-// A bootstrap 4 popover. *content* can be a Mithril component.
+// A bootstrap 4 popover. *content* can be a Mithril component such as:
+//
 //	class PopoverContent {
 //		set popover(popover) {
 //			this._popover = popover;
@@ -19,7 +20,7 @@ class Popover {  // jshint ignore:line
 		this.showing = !this.showing;
 	}
 
-	view(vnode) {
+	view() {
 		return this.showing ? m(
 			'.mw-popover',
 			[m('.card-deck.mw-popover-box',
