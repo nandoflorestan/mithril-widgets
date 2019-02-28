@@ -9,7 +9,7 @@
 	right: 0;
 	text-align: center;
 }
-.mw-popover-box {
+.mw-popover-container {
 	display: inline-block;
 	width: 40em;
 	min-width: 350px;
