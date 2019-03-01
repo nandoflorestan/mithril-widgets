@@ -16,19 +16,16 @@ class Popover {  // jshint ignore:line
 		this.showing = false;
 	}
 
-	toggle() {
-		this.showing = !this.showing;
-
-		if (this.showing) {
-			// Add the listener to capture when click outside
-			// First add it to this._ifClickOutside so the function have the same signature when remove the listner
-			this._ifClickOutside = this.ifClickOutside.bind(this);
-			// SetTimeout prevents the first click from being captured if the toggle is called by the click of a button
-			setTimeout(()=> document.addEventListener("click", this._ifClickOutside));
-		} else {
-			// Remove the listener on close
-			document.removeEventListener("click", this._ifClickOutside);
-		}
+	open() {
+		this.showing = true;
+		// Add the listener to capture when click outside
+		// First add it to this._ifClickOutside so the function have the same signature when remove the listner
+		this._ifClickOutside = this.ifClickOutside.bind(this);
+		// SetTimeout prevents the first click from being captured if the toggle is called by the click of a button
+		setTimeout(()=> document.addEventListener("click", this._ifClickOutside));
+	}
+	close() {
+		this.showing = false;
 	}
 
 	ifClickOutside(event) {
@@ -45,7 +42,9 @@ class Popover {  // jshint ignore:line
 		} while (clickedElement);
 
 		// This is an outside click
-		this.toggle();
+		// Remove the listener on close
+		document.removeEventListener("click", this._ifClickOutside);
+		this.close();
 	}
 
 	view() {
