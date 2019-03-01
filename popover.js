@@ -14,42 +14,37 @@ class Popover {  // jshint ignore:line
 		this._content = content;
 		content.popover = this;
 		this.showing = false;
+
 	}
 
 	open() {
 		this.showing = true;
-		// Add the listener to capture when click outside
-		// First add it to this._ifClickOutside so the function have the same signature when remove the listner
-		this._ifClickOutside = this.ifClickOutside.bind(this);
-		// SetTimeout prevents the first click from being captured if the toggle is called by the click of a button
-		setTimeout(()=> document.addEventListener("click", this._ifClickOutside));
 	}
+
 	close() {
 		this.showing = false;
 	}
 
-	ifClickOutside(event) {
-		const targetElement = document.getElementById('mw-popover-box');
+	// Dectect when user click outside
+	onClickOutside(event) {
 		let clickedElement = event.target;
 
 		do {
-			if (clickedElement === targetElement) {
-				// This is a click inside the popover, do nothing, just return
+			if (clickedElement.id === 'mw-popover-box') {
+				// This is a click inside the popover, do nothing, just stop the function
 				return false;
+			} else {
+				// If not, go up the DOM and check the next element
+				clickedElement = clickedElement.parentNode;
 			}
-			// Go up the DOM
-			clickedElement = clickedElement.parentNode;
 		} while (clickedElement);
 
 		// This is an outside click
-		// Remove the listener on close
-		document.removeEventListener("click", this._ifClickOutside);
 		this.close();
 	}
 
 	view() {
-		return this.showing ? m(
-			'.mw-popover',
+		return this.showing ? m('.mw-popover .mw-popover-backdrop', {onclick: this.onClickOutside.bind(this)},
 			[m('.card-deck.mw-popover-container',
 				[m('.card.mw-shadow', {id: 'mw-popover-box'}, [
 					m('.card-header.text-left.bg-info.text-white', this._content.title),
