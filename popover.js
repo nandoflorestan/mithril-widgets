@@ -14,7 +14,6 @@ class Popover {  // jshint ignore:line
 		this._content = content;
 		content.popover = this;
 		this.showing = false;
-
 	}
 
 	open() {
@@ -25,13 +24,11 @@ class Popover {  // jshint ignore:line
 		this.showing = false;
 	}
 
-	// Dectect when user click outside
-	onClickOutside(event) {
+	onClick(event) {
 		let clickedElement = event.target;
-
 		do {
 			if (clickedElement.id === 'mw-popover-box') {
-				// This is a click inside the popover, do nothing, just stop the function
+				// This is a click inside the popover, so do nothing
 				return false;
 			} else {
 				// If not, go up the DOM and check the next element
@@ -39,12 +36,12 @@ class Popover {  // jshint ignore:line
 			}
 		} while (clickedElement);
 
-		// This is an outside click
+		// This is an outside click, so close the popover
 		this.close();
 	}
 
 	view() {
-		return this.showing ? m('.mw-popover .mw-popover-backdrop', {onclick: this.onClickOutside.bind(this)},
+		return this.showing ? m('.mw-popover .mw-popover-backdrop', {onclick: this.onClick.bind(this)},
 			[m('.card-deck.mw-popover-container',
 				[m('.card.mw-shadow', {id: 'mw-popover-box'}, [
 					m('.card-header.text-left.bg-info.text-white', this._content.title),
