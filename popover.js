@@ -57,7 +57,10 @@ class Popover {  // jshint ignore:line
 		return this.showing ? m('.mw-popover .mw-popover-backdrop', {onclick: this.onClick.bind(this)},
 			[m('.mw-popover-container',
 				[m('.card.mw-shadow', {id: 'mw-popover-box'}, [
-					m('.card-header.text-left.bg-info.text-white', this._content.title),
+					m('.card-header.text-left.bg-info.text-white', [
+						m('strong', this._content.title),
+						m('span.fas.fa-times-circle', {onclick: this.close.bind(this)}, '')
+					]),
 					m('.card-body.text-left', this._content.view())
 				])]
 			)]
