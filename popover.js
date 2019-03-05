@@ -14,12 +14,11 @@ class Popover {  // jshint ignore:line
 		this._content = content;
 		content.popover = this;
 		this.showing = false;
-		// Register the function to bind the "this" and keep the same signature, this allow remove the listener
-		this._closeOnPressEsc = this.closeOnPressEsc.bind(this);
-		document.addEventListener('keyup', this._closeOnPressEsc, true);
+		// Store a function with "this" bound to this instance
+		this.onEscClose = this._onEscClose.bind(this);
 	}
 
-	closeOnPressEsc(event) {
+	_onEscClose(event) {
 		if (event.key === "Escape") {
 			this.close();
 			m.redraw();
@@ -27,11 +26,12 @@ class Popover {  // jshint ignore:line
 	}
 
 	open() {
+		document.addEventListener('keyup', this.onEscClose, true);
 		this.showing = true;
 	}
 
 	close() {
-		document.removeEventListener('keyup', this._closeOnPressEsc, true);
+		document.removeEventListener('keyup', this.onEscClose, true);
 		this.showing = false;
 	}
 
