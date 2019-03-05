@@ -28,15 +28,34 @@ class Popover {  // jshint ignore:line
 		}
 	}
 
-	toggle() {
-		this.showing = !this.showing;
+	open() {
+		this.showing = true;
+	}
+
+	close() {
+		this.showing = false;
+	}
+
+	onClick(event) {
+		let clickedElement = event.target;
+		do {
+			if (clickedElement.id === 'mw-popover-box') {
+				// This is a click inside the popover, so do nothing
+				return false;
+			} else {
+				// If not, go up the DOM and check the next element
+				clickedElement = clickedElement.parentNode;
+			}
+		} while (clickedElement);
+
+		// This is an outside click, so close the popover
+		this.close();
 	}
 
 	view() {
-		return this.showing ? m(
-			'.mw-popover',
-			[m('.card-deck.mw-popover-box',
-				[m('.card.mw-shadow', [
+		return this.showing ? m('.mw-popover .mw-popover-backdrop', {onclick: this.onClick.bind(this)},
+			[m('.mw-popover-container',
+				[m('.card.mw-shadow', {id: 'mw-popover-box'}, [
 					m('.card-header.text-left.bg-info.text-white', this._content.title),
 					m('.card-body.text-left', this._content.view())
 				])]

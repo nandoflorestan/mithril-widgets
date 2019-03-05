@@ -1,5 +1,14 @@
 /* mw-popover*/
-.mw-popover {
+.mw-popover-backdrop {
+	position: fixed;
+	z-index: 1999;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+.mw-popover-container {
 	position: fixed;
 	z-index: 2000;
 	top: 10%;
@@ -8,9 +17,6 @@
 	left: 0;
 	right: 0;
 	text-align: center;
-}
-.mw-popover-box {
-	display: inline-block;
 	width: 40em;
 	min-width: 350px;
 	max-width: 100%;
