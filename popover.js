@@ -40,7 +40,7 @@ class Popover {  // jshint ignore:line
 		do {
 			if (clickedElement.id === 'mw-popover-box') {
 				// This is a click inside the popover, so do nothing
-				return false;
+				return;
 			} else {
 				// If not, go up the DOM and check the next element
 				clickedElement = clickedElement.parentNode;
