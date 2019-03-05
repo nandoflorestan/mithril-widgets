@@ -14,6 +14,18 @@ class Popover {  // jshint ignore:line
 		this._content = content;
 		content.popover = this;
 		this.showing = false;
+
+		this._closeOnPressEsc = this.closeOnPressEsc.bind(this);
+		document.addEventListener('keyup', this._closeOnPressEsc, true);
+	}
+
+	closeOnPressEsc(event) {
+		console.log('event', event);
+		console.log('this', this);
+		if (event.key === "Escape") {
+			this.toggle();
+			// document.removeEventListener('keyup', this._closeOnPressEsc, true);
+		}
 	}
 
 	toggle() {
