@@ -14,7 +14,7 @@ class Popover {  // jshint ignore:line
 		this._content = content;
 		content.popover = this;
 		this.showing = false;
-
+		// Register the function to bind the "this" and keep the same signature, this allow remove the listener
 		this._closeOnPressEsc = this.closeOnPressEsc.bind(this);
 		document.addEventListener('keyup', this._closeOnPressEsc, true);
 	}
@@ -23,8 +23,8 @@ class Popover {  // jshint ignore:line
 		console.log('event', event);
 		console.log('this', this);
 		if (event.key === "Escape") {
-			this.toggle();
-			// document.removeEventListener('keyup', this._closeOnPressEsc, true);
+			this.close();
+			m.redraw();
 		}
 	}
 
@@ -33,6 +33,7 @@ class Popover {  // jshint ignore:line
 	}
 
 	close() {
+		document.removeEventListener('keyup', this._closeOnPressEsc, true);
 		this.showing = false;
 	}
 
