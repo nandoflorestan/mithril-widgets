@@ -20,8 +20,6 @@ class Popover {  // jshint ignore:line
 	}
 
 	closeOnPressEsc(event) {
-		console.log('event', event);
-		console.log('this', this);
 		if (event.key === "Escape") {
 			this.close();
 			m.redraw();
