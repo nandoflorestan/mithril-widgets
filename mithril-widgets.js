@@ -734,25 +734,3 @@ class ContentEditable { // jshint ignore:line
 		}, m.trust(this.text));
 	}
 }
-
-
-class ServerCommands { // jshint ignore:line
-	constructor(context) {
-		this.context = context;
-		this.commands = {};
-	}
-
-	add(commandName, command) {
-		this.commands[commandName] = command;
-	}
-
-	run(command) {
-		this.commands[command.name](this.context, command);
-	}
-
-	runAll(commands) {
-		for (const command of commands) {
-			this.run(command);
-		}
-	}
-}
