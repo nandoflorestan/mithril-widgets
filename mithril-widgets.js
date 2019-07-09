@@ -259,8 +259,8 @@ function request(d) { // jshint ignore:line
 		}
 	};
 	m.request(d).then(function (response) {
-		if (response.commands && response.commands.length && serverCommands) {
-			serverCommands.runAll(response.commands);
+		if (response.commands && response.commands.length && window.serverCommands) {
+			window.serverCommands.runAll(response.commands);
 		}
 		if (handle)  notifier.rmStatus(handle);
 		if (ret.callback) {
