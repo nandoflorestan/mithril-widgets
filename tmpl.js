@@ -81,3 +81,5 @@ const tmpl = (function () {
 		}
 	});
 }());
+
+export { tmpl }
