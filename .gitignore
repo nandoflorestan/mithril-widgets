@@ -32,8 +32,8 @@ bower_components
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
 
-# ES5 version without exports
-es5/
+# JS version without exports
+no-es6-modules/
 
 # Dependency directories
 node_modules/
