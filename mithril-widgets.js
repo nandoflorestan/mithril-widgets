@@ -702,5 +702,8 @@ class ServerCommands { // jshint ignore:line
 	}
 }
 
-export { Unique, _Event, UL, Notification, request, SimpleTable, SortedTable, Select, MenuStrategy, Notifier };
-export { SelectNav, DropdownNav, NavMenu, SearchBox, FormField, PhoneField, ContentEditable, ServerCommands };
+export {
+	Unique, _Event, UL, Notification, request, SimpleTable, SortedTable,
+	Select, MenuStrategy, Notifier, SelectNav, DropdownNav, NavMenu, SearchBox,
+	FormField, PhoneField, ContentEditable, ServerCommands
+};
