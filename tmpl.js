@@ -82,4 +82,4 @@ const tmpl = (function () {
 	});
 }());
 
-export { tmpl }
+export { tmpl };

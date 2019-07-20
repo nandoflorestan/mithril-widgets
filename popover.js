@@ -66,4 +66,4 @@ class Popover {  // jshint ignore:line
 	}
 }
 
-export { Popover }
+export { Popover };
