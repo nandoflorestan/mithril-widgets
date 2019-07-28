@@ -326,6 +326,7 @@ class Select { // jshint ignore:line
 		this.opts = opts;
 		this.css = css;
 		this.changed = new TinyEvent();
+	}
 }
 
 
