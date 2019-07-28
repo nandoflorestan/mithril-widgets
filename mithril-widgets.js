@@ -672,7 +672,7 @@ class ServerCommands { // jshint ignore:line
 }
 
 export {
-	Unique, _Event, UL, Notification, request, SimpleTable, SortedTable,
+	Unique, TinyEvent, UL, Notification, request, SimpleTable, SortedTable,
 	Select, MenuStrategy, Notifier, SelectNav, DropdownNav, NavMenu, SearchBox,
 	FormField, PhoneField, ContentEditable, ServerCommands
 };
