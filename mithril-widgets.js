@@ -13,11 +13,13 @@ function readCookie(name) {
 	return null;
 }
 
+
 const Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++Unique.n,
 	domID: () => '_' + Unique.next(),  // div IDs must not start with a number
 };
+
 
 class TinyEvent {
 	constructor(name) {
@@ -34,7 +36,6 @@ class TinyEvent {
 		for (const o of this.observers)  o.fn.apply(o.ctx, arguments);
 	}
 }
-_Event.index = {}; // storage for all named events
 TinyEvent.index = {};  // storage for all named events
 
 
