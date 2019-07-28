@@ -19,10 +19,10 @@ const Unique = { // produce unique IDs
 	domID: () => '_' + Unique.next(),  // div IDs must not start with a number
 };
 
-class _Event {
+class TinyEvent {
 	constructor(name) {
 		this.observers = [];
-		if (name)  _Event.index[name] = this;
+		if (name)  TinyEvent.index[name] = this;
 	}
 	subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
 		this.observers.push({fn, ctx});
@@ -35,6 +35,7 @@ class _Event {
 	}
 }
 _Event.index = {}; // storage for all named events
+TinyEvent.index = {};  // storage for all named events
 
 
 // PART 3: widgets for Mithril and Bootstrap 4
@@ -324,41 +325,7 @@ class Select { // jshint ignore:line
 		this.groups = groups;
 		this.opts = opts;
 		this.css = css;
-		this.changed = new _Event();
-		if (onChange)  this.changed.subscribe(onChange);
-	}
-	view(vnode) {
-		// Why "self" in view()? You'd expect *this* to refer to this instance,
-		// but Mithril makes it an object whose prototype is this instance.
-		const self = vnode.tag;
-		return m(
-			"select" + self.css,
-			{onchange: m.withAttr('value',
-				v => self.changed.broadcast.apply(self.changed, [v]))},
-			self.content.apply(self));
-	}
-	content() {
-		if (this.groups) {
-			return this.groups.map(
-				(g) => m(
-					'optgroup',
-					{label: g.label},
-					g.options.map(o => this.mkOption(o))));
-		} else {
-			return this.opts.map(o => this.mkOption(o));
-		}
-	}
-	mkOption(opt) {
-		return m(
-			'option',
-			{ // TODO Instead of this, just destructure *label*
-				disabled: opt.disabled,
-				selected: opt.selected ? 'selected' : undefined,
-				title: opt.title || undefined,
-				value: opt.value
-			},
-			opt.label);
-	}
+		this.changed = new TinyEvent();
 }
 
 
@@ -402,7 +369,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 			'click', () => this.clickOutsideMenu.apply(this));
 		for (const nav of this.entry.children) {
 			if (nav.click_event_name) {
-				nav.click = new _Event(nav.click_event_name);
+				nav.click = new TinyEvent(nav.click_event_name);
 			}
 		}
 	}
@@ -475,7 +442,7 @@ class NavMenu { // jshint ignore:line
 		this.classes = att.classes || '';
 		this.bootstrap = bootstrap;
 		this.burgerMenuShow = false;
-		this.burgerMenuClick = new _Event();
+		this.burgerMenuClick = new TinyEvent();
 		this.burgerMenuClick.subscribe(this.toggleBurgerMenu);
 		// ".navbar-expand-lg.navbar-dark.bg-dark"
 
@@ -573,7 +540,7 @@ class SearchBox { // jshint ignore:line
 		this.inputAttrs = this.inputAttrs || {};
 		this.inputAttrs.onkeyup = this.inputAttrs.onkeyup ||
 			((e) => this.keyup.apply(this, [e]));
-		this.changed = new _Event();
+		this.changed = new TinyEvent();
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -645,7 +612,7 @@ class PhoneField { // jshint ignore:line
 			type: type,
 			value: value,
 		};
-		this.changed = new _Event();
+		this.changed = new TinyEvent();
 	}
 	keyup(val) {
 		this.attrs.value = val;
