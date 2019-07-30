@@ -13,13 +13,11 @@ function readCookie(name) {
 	return null;
 }
 
-
 const Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++Unique.n,
 	domID: () => '_' + Unique.next(),  // div IDs must not start with a number
 };
-
 
 class TinyEvent {
 	constructor(name) {
@@ -36,7 +34,7 @@ class TinyEvent {
 		for (const o of this.observers)  o.fn.apply(o.ctx, arguments);
 	}
 }
-TinyEvent.index = {};  // storage for all named events
+TinyEvent.index = {}; // storage for all named events
 
 
 // PART 3: widgets for Mithril and Bootstrap 4
@@ -327,6 +325,39 @@ class Select { // jshint ignore:line
 		this.opts = opts;
 		this.css = css;
 		this.changed = new TinyEvent();
+		if (onChange)  this.changed.subscribe(onChange);
+	}
+	view(vnode) {
+		// Why "self" in view()? You'd expect *this* to refer to this instance,
+		// but Mithril makes it an object whose prototype is this instance.
+		const self = vnode.tag;
+		return m(
+			"select" + self.css,
+			{onchange: m.withAttr('value',
+				v => self.changed.broadcast.apply(self.changed, [v]))},
+			self.content.apply(self));
+	}
+	content() {
+		if (this.groups) {
+			return this.groups.map(
+				(g) => m(
+					'optgroup',
+					{label: g.label},
+					g.options.map(o => this.mkOption(o))));
+		} else {
+			return this.opts.map(o => this.mkOption(o));
+		}
+	}
+	mkOption(opt) {
+		return m(
+			'option',
+			{ // TODO Instead of this, just destructure *label*
+				disabled: opt.disabled,
+				selected: opt.selected ? 'selected' : undefined,
+				title: opt.title || undefined,
+				value: opt.value
+			},
+			opt.label);
 	}
 }
 
