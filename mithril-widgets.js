@@ -13,11 +13,13 @@ function readCookie(name) {
 	return null;
 }
 
+
 const Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++Unique.n,
 	domID: () => '_' + Unique.next(),  // div IDs must not start with a number
 };
+
 
 class TinyEvent {
 	constructor(name) {
@@ -34,7 +36,8 @@ class TinyEvent {
 		for (const o of this.observers)  o.fn.apply(o.ctx, arguments);
 	}
 }
-TinyEvent.index = {}; // storage for all named events
+TinyEvent.index = {};  // storage for all named events
+
 
 
 // PART 3: widgets for Mithril and Bootstrap 4
@@ -240,8 +243,9 @@ function request(d) { // jshint ignore:line
 }
 
 
- // The *rows* argument should be an array of arrays
+
 class SimpleTable { // jshint ignore:line
+	// The *rows* argument should be an array of arrays
 	constructor({headers=[], rows=[], classes='.table .table-bordered', caption=null}={}) {
 		this.headers = headers;
 		this.rows = rows;
@@ -319,13 +323,15 @@ class SortedTable { // jshint ignore:line
 
 class Select { // jshint ignore:line
 	constructor({groups=null, opts=null, css='', onChange=null}={}) {
-		if (!groups && !opts || groups && opts)  throw new Error(
-			"Pass either *groups* or *opts* to Select constructor.");
+		if (!groups && !opts || groups && opts)
+			throw new Error(
+				"Pass either *groups* or *opts* to Select constructor.");
 		this.groups = groups;
 		this.opts = opts;
 		this.css = css;
 		this.changed = new TinyEvent();
-		if (onChange)  this.changed.subscribe(onChange);
+		if (onChange)
+			this.changed.subscribe(onChange);
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
