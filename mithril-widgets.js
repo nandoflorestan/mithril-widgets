@@ -210,6 +210,11 @@ function request(d) { // jshint ignore:line
 		if (response.commands && response.commands.length && window.serverCommands) {
 			window.serverCommands.runAll(response.commands);
 		}
+		if (response.toasts) {  // for kerno-like return values
+			for (const obj of response.toasts) {
+				notifier.add(obj);
+			}
+		}
 		if (handle)  notifier.rmStatus(handle);
 		if (ret.callback) {
 			return ret.callback(response);
