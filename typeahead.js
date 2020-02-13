@@ -46,8 +46,6 @@ class Typeahead {
 	}
 
 	handleKeyUp(e) {
-		const input = document.getElementById(this.id);
-		window.console.log('dropdownList', input.value, this.dropdownList());
 		this.showDropdown();
 		switch (e.which) {
 			case 40:
@@ -74,6 +72,7 @@ class Typeahead {
 		return m('div.dropdown', [
 				m('input.form-control', {
 					onfocus: self.showDropdown,
+					onclick: self.showDropdown,
 					onblur: self.hideDropdown,
 					onkeyup: self.handleKeyUp.bind(self),
 					id: self.id,
