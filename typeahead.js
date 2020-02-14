@@ -18,6 +18,7 @@ class Typeahead {
 		// Only show the dropdown if user type some value
 		const input = document.getElementById(this.id);
 		if (!input.value.replace(/\s/g, '').length) {
+			this.hideDropdown();
 			return;
 		}
 
@@ -34,8 +35,10 @@ class Typeahead {
 	dropdownList() {
 		const list = [];
 
+		let index = 0;
 		for (const item of this.list) {
-			list.push(m('a.dropdown-item', item));
+			list.push(m('a.dropdown-item', {onclick: this.selectItem.bind(this), ["data-index"]: index}, item));
+			index = index + 1;
 		}
 
 		return list;
@@ -105,7 +108,12 @@ class Typeahead {
 		this._activateItem();
 	}
 
-	selectItem() {
+	selectItem(event) {
+		// If called by onclick event
+		if (event && event.target) {
+			this._currentItemIndex = parseInt(event.target.dataset.index);
+		}
+		// Select item from this.list and put it as the typeahead input value
 		const currentItem = this.list[this._currentItemIndex];
 		const input = document.getElementById(this.id);
 		input.value = currentItem;
@@ -114,7 +122,7 @@ class Typeahead {
 
 	handleKeyUp(e) {
 		this.showDropdown();
-		console.log('e.which', e.which);
+
 		switch (e.which) {
 			case 40:
 				e.preventDefault();
@@ -135,6 +143,7 @@ class Typeahead {
 				e.preventDefault();
 				this.hideDropdown();
 				break;
+
 			default:
 				this._currentItemIndex = 0;
 				this._activateItem();
@@ -145,8 +154,8 @@ class Typeahead {
 		const self = vnode.tag;
 		return m('div.dropdown', [
 				m('input.form-control', {
-					onfocus: self.showDropdown,
-					onclick: self.showDropdown,
+					onfocus: self.showDropdown.bind(self),
+					onclick: self.showDropdown.bind(self),
 					// onblur: self.hideDropdown,
 					onkeyup: self.handleKeyUp.bind(self),
 					id: self.id,
