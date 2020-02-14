@@ -1,16 +1,17 @@
 'use strict';
 
-
+// A basic typeahed using bootstrap 4 dropdown
 class Typeahead {
 	constructor({id, list}) {
 		this.id = id;
+		// Holds the full list of suggestions
 		this._list = list;
 		// Helper to select the items on list
 		this._currentItemIndex = null;
 		document.body.addEventListener('click', (event) => this.clickOutside.apply(this, [event]));
 	}
 
-	// Return a filtered values list
+	// Return a filtered list of suggestions
 	get list() {
 		return this.filter(this._list);
 	}
@@ -22,7 +23,7 @@ class Typeahead {
 			this.hideDropdown();
 			return;
 		}
-
+		// Get the dropdown element
 		const dropdown = document.getElementById(`${this.id}-dropdown-menu`);
 		dropdown.classList.add('show');
 	}
@@ -36,7 +37,8 @@ class Typeahead {
 		}
 	}
 
-	dropdownList() {
+	// Creates the dropdown suggestions list with the this.list values
+	createDropdownList() {
 		const list = [];
 
 		let index = 0;
@@ -48,6 +50,8 @@ class Typeahead {
 		return list;
 	}
 
+	// Return a list with suggestions filtered by the current value in the typeahead input
+	// This is case insentive, ignore spaces and make the search in any position of the string
 	filter(list)	{
 		const input = document.getElementById(this.id);
 		const searchTerm = String(input.value).toLowerCase().replace(/\s/g, '');
@@ -61,6 +65,8 @@ class Typeahead {
 		return filteredList;
 	}
 
+	// When user press "down arrow" key, find the new _currentItemIndex
+	// and add the css class "active" to the correct item on dropmenu
 	activateNextItem() {
 		if (!this.list.length) {
 			return;
@@ -77,6 +83,8 @@ class Typeahead {
 		this._activateItem();
 	}
 
+	// When user press "up arrow" key, find the new _currentItemIndex
+	// and add the css class "active" to the correct item on dropmenu
 	activatePreviousItem() {
 		if (!this.list.length) {
 			return;
@@ -93,6 +101,8 @@ class Typeahead {
 		this._activateItem();
 	}
 
+	// Add the css class "active" to dropdown-item with index iqual to this._currentItemIndex
+	// and remove any "active" class from other dropdown-item
 	_activateItem() {
 		if (this._currentItemIndex === null) {
 			this._currentItemIndex = 0;
@@ -113,11 +123,13 @@ class Typeahead {
 		}
 	}
 
+	// Remove any "active" css class from dropdown-items
 	clearActiveItems() {
 		this._currentItemIndex = null;
 		this._activateItem();
 	}
 
+	// Select the value in this.list[index] and put on typeahead input
 	selectItem(event) {
 		// If called by onclick event
 		if (event && event.target) {
@@ -130,6 +142,7 @@ class Typeahead {
 		this.hideDropdown();
 	}
 
+	// Hide the dropdown if user click outside from typeahead input
 	clickOutside(event) {
 		// Cancel if the targe is the typeahead input
 		if (event.target.id === this.id) {
@@ -138,6 +151,7 @@ class Typeahead {
 		this.hideDropdown();
 	}
 
+	// Allow to select an item using the keyboard
 	handleKeyUp(e) {
 		this.showDropdown();
 		switch (e.which) {
@@ -180,7 +194,7 @@ class Typeahead {
 					type: 'text'
 				},
 				''),
-				m('div.dropdown-menu', {id: `${self.id}-dropdown-menu`}, self.dropdownList())
+				m('div.dropdown-menu', {id: `${self.id}-dropdown-menu`}, self.createDropdownList())
 		]);
 	}
 }
