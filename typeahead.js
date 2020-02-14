@@ -5,6 +5,8 @@ class Typeahead {
 	constructor({id, list}) {
 		this.id = id;
 		this._list = list;
+		// Helper to select the items on list
+		this._currentItemIndex = null;
 	}
 
 	// Return a filtered values list
@@ -13,11 +15,18 @@ class Typeahead {
 	}
 
 	showDropdown() {
+		// Only show the dropdown if user type some value
+		const input = document.getElementById(this.id);
+		if (!input.value.replace(/\s/g, '').length) {
+			return;
+		}
+
 		const dropdown = document.getElementById(`${this.id}-dropdown-menu`);
 		dropdown.classList.add('show');
 	}
 
 	hideDropdown() {
+		this.clearActiveItems();
 		const dropdown = document.getElementById(`${this.id}-dropdown-menu`);
 		dropdown.classList.remove('show');
 	}
@@ -45,25 +54,90 @@ class Typeahead {
 		return filteredList;
 	}
 
+	activateNextItem() {
+		if (!this.list.length) {
+			return;
+		}
+
+		if (this._currentItemIndex === null) {
+			this._currentItemIndex = 0;
+		} else if (this._currentItemIndex < this.list.length - 1) {
+			this._currentItemIndex = this._currentItemIndex + 1;
+		} else {
+			this._currentItemIndex = 0;
+		}
+
+		this._activateItem();
+	}
+
+	activatePreviousItem() {
+		if (!this.list.length) {
+			return;
+		}
+
+		if (this._currentItemIndex === null) {
+			this._currentItemIndex = 0;
+		} else if (this._currentItemIndex >= 1) {
+			this._currentItemIndex = this._currentItemIndex - 1;
+		} else {
+			this._currentItemIndex = this.list.length - 1;
+		}
+
+		this._activateItem();
+	}
+
+	_activateItem() {
+		const dropdownItems = document.getElementById(`${this.id}-dropdown-menu`).children;
+		let index = 0;
+		for (const item of dropdownItems) {
+			if (index === this._currentItemIndex) {
+				item.classList.add('active');
+			} else {
+				item.classList.remove('active');
+			}
+
+			index = index + 1;
+		}
+	}
+
+	clearActiveItems() {
+		this._currentItemIndex = null;
+		this._activateItem();
+	}
+
+	selectItem() {
+		const currentItem = this.list[this._currentItemIndex];
+		const input = document.getElementById(this.id);
+		input.value = currentItem;
+		this.hideDropdown();
+	}
+
 	handleKeyUp(e) {
 		this.showDropdown();
+		console.log('e.which', e.which);
 		switch (e.which) {
 			case 40:
 				e.preventDefault();
+				this.activateNextItem();
 				break;
 
 			case 38:
 				e.preventDefault();
+				this.activatePreviousItem()
 				break;
 
 			case 13:
 				e.preventDefault();
+				this.selectItem();
 				break;
 
 			case 27:
 				e.preventDefault();
 				this.hideDropdown();
 				break;
+			default:
+				this._currentItemIndex = 0;
+				this._activateItem();
 		}
 	}
 
@@ -73,7 +147,7 @@ class Typeahead {
 				m('input.form-control', {
 					onfocus: self.showDropdown,
 					onclick: self.showDropdown,
-					onblur: self.hideDropdown,
+					// onblur: self.hideDropdown,
 					onkeyup: self.handleKeyUp.bind(self),
 					id: self.id,
 					autocomplete: 'off',
