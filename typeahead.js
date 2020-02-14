@@ -7,6 +7,7 @@ class Typeahead {
 		this._list = list;
 		// Helper to select the items on list
 		this._currentItemIndex = null;
+		document.body.addEventListener('click', (event) => this.clickOutside.apply(this, [event]));
 	}
 
 	// Return a filtered values list
@@ -29,7 +30,10 @@ class Typeahead {
 	hideDropdown() {
 		this.clearActiveItems();
 		const dropdown = document.getElementById(`${this.id}-dropdown-menu`);
-		dropdown.classList.remove('show');
+		if (dropdown) {
+			dropdown.classList.remove('show');
+			this._activateItem();
+		}
 	}
 
 	dropdownList() {
@@ -90,16 +94,22 @@ class Typeahead {
 	}
 
 	_activateItem() {
-		const dropdownItems = document.getElementById(`${this.id}-dropdown-menu`).children;
-		let index = 0;
-		for (const item of dropdownItems) {
-			if (index === this._currentItemIndex) {
-				item.classList.add('active');
-			} else {
-				item.classList.remove('active');
-			}
+		if (this._currentItemIndex === null) {
+			this._currentItemIndex = 0;
+		}
+		const dropdown = document.getElementById(`${this.id}-dropdown-menu`);
+		if (dropdown) {
+			const dropdownItems = dropdown.children;
+			let index = 0;
+			for (const item of dropdownItems) {
+				if (index === this._currentItemIndex) {
+					item.classList.add('active');
+				} else {
+					item.classList.remove('active');
+				}
 
-			index = index + 1;
+				index = index + 1;
+			}
 		}
 	}
 
@@ -120,30 +130,38 @@ class Typeahead {
 		this.hideDropdown();
 	}
 
+	clickOutside(event) {
+		// Cancel if the targe is the typeahead input
+		if (event.target.id === this.id) {
+			return;
+		}
+		this.hideDropdown();
+	}
+
 	handleKeyUp(e) {
 		this.showDropdown();
-
 		switch (e.which) {
+			// Arrow down
 			case 40:
 				e.preventDefault();
 				this.activateNextItem();
 				break;
-
+			// Arrow up
 			case 38:
 				e.preventDefault();
-				this.activatePreviousItem()
+				this.activatePreviousItem();
 				break;
-
+			// Enter
 			case 13:
 				e.preventDefault();
 				this.selectItem();
 				break;
-
+			// ESC
 			case 27:
 				e.preventDefault();
 				this.hideDropdown();
 				break;
-
+			// Any other key
 			default:
 				this._currentItemIndex = 0;
 				this._activateItem();
@@ -156,7 +174,6 @@ class Typeahead {
 				m('input.form-control', {
 					onfocus: self.showDropdown.bind(self),
 					onclick: self.showDropdown.bind(self),
-					// onblur: self.hideDropdown,
 					onkeyup: self.handleKeyUp.bind(self),
 					id: self.id,
 					autocomplete: 'off',
