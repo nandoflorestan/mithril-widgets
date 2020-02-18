@@ -327,13 +327,14 @@ class SortedTable { // jshint ignore:line
 
 
 class Select { // jshint ignore:line
-	constructor({groups=null, opts=null, css='', onChange=null}={}) {
+	constructor({groups=null, opts=null, css='', disabled=false, onChange=null}={}) {
 		if (!groups && !opts || groups && opts)
 			throw new Error(
 				"Pass either *groups* or *opts* to Select constructor.");
 		this.groups = groups;
 		this.opts = opts;
 		this.css = css;
+		this.disabled = disabled;
 		this.changed = new TinyEvent();
 		if (onChange)
 			this.changed.subscribe(onChange);
@@ -343,8 +344,9 @@ class Select { // jshint ignore:line
 		// but Mithril makes it an object whose prototype is this instance.
 		const self = vnode.tag;
 		return m(
-			"select" + self.css,
-			{onchange: m.withAttr('value',
+			"select" + self.css, {
+				disabled: self.disabled,
+				onchange: m.withAttr('value',
 				v => self.changed.broadcast.apply(self.changed, [v]))},
 			self.content.apply(self));
 	}
