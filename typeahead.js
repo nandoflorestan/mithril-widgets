@@ -2,7 +2,8 @@
 
 // A basic typeahed using bootstrap 4 dropdown
 class Typeahead {
-	constructor({id, list}) {
+	constructor({id, list, position}) {
+		this.position = position || 'dropdown';
 		this.id = id;
 		// Holds the full list of suggestions
 		this._list = list;
@@ -184,7 +185,7 @@ class Typeahead {
 
 	view(vnode) {
 		const self = vnode.tag;
-		return m('div.dropdown', [
+		return m(`div.${self.position}`, [
 				m('input.form-control', {
 					onfocus: self.showDropdown.bind(self),
 					onclick: self.showDropdown.bind(self),
