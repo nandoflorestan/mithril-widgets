@@ -140,6 +140,7 @@ class Typeahead {
 		const currentItem = this.list[this._currentItemIndex];
 		const input = document.getElementById(this.id);
 		input.value = currentItem;
+		this.value = currentItem;
 		this.hideDropdown();
 	}
 
@@ -155,6 +156,8 @@ class Typeahead {
 	// Allow to select an item using the keyboard
 	handleKeyUp(e) {
 		this.showDropdown();
+		const input = document.getElementById(this.id);
+		this.value = input.value;
 		switch (e.which) {
 			// Arrow down
 			case 40:
