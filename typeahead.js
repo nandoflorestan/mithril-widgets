@@ -55,6 +55,9 @@ class Typeahead {
 	// This is case insentive, ignore spaces and make the search in any position of the string
 	filter(list)	{
 		const input = document.getElementById(this.id);
+		if (!input) {
+			 return [];
+		}
 		const searchTerm = String(input.value).toLowerCase().replace(/\s/g, '');
 		const filteredList = list.filter(function (value) {
 			const valueToTest = String(value).toLowerCase().replace(/\s/g, '');
