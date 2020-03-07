@@ -1,60 +1,5 @@
 'use strict';
 
-// PART 1: add a couple useful methods to js data types.
-
-Object.defineProperty(Object.prototype, 'pop', {
-	writable: false,
-	configurable: false,
-	enumerable: false,
-	value: function (key) {  // Return the value and remove *key* from this
-		var value = this[key];
-		delete this[key];
-		return value;
-	}
-});
-
-if (!Array.prototype.contains) {
-	Object.defineProperty(Array.prototype, 'contains', {value: function (o) {
-		return this.indexOf(o) != -1;
-	}});
-}
-
-Object.defineProperty(Object.prototype, 'deepValue', {
-	writable: false,
-	configurable: false,
-	enumerable: false,
-	value: function (key) { // Example key: "person.address.street"
-		// Traverse this object to return the value of a structured key
-		const keyParts = key.split('\.'); // split *key* by dot
-		let val = this;
-		for (const k of keyParts)  {
-			val = val[k];
-			if (val === undefined) return undefined;
-			else if (val === null) return null;
-		}
-		return val;
-	}
-});
-
-Object.defineProperty(Array.prototype, 'sortBy', {value: function (key, desc) {
-	return this.sort(function(a, b) {
-		let va = a.deepValue(key);
-		let vb = b.deepValue(key);
-		if (typeof va === "string") {
-			va = va.toLowerCase();
-		}
-		if (typeof vb === "string") {
-			vb = vb.toLowerCase();
-		}
-		if (desc) {
-			return (va > vb) ? -1 : ((va < vb) ? 1 : 0);
-		} else {
-			return (va < vb) ? -1 : ((va > vb) ? 1 : 0);
-		}
-	});
-}});
-
-
 // PART 2: Useful helper functions and services
 
 function readCookie(name) {
@@ -68,16 +13,18 @@ function readCookie(name) {
 	return null;
 }
 
+
 const Unique = { // produce unique IDs
 	n: 0,
 	next: () => ++Unique.n,
 	domID: () => '_' + Unique.next(),  // div IDs must not start with a number
 };
 
-class Event {
+
+class TinyEvent {
 	constructor(name) {
 		this.observers = [];
-		if (name)  Event.index[name] = this;
+		if (name)  TinyEvent.index[name] = this;
 	}
 	subscribe(fn, ctx) { // *ctx* is what *this* will be inside *fn*.
 		this.observers.push({fn, ctx});
@@ -89,7 +36,8 @@ class Event {
 		for (const o of this.observers)  o.fn.apply(o.ctx, arguments);
 	}
 }
-Event.index = {}; // storage for all named events
+TinyEvent.index = {};  // storage for all named events
+
 
 
 // PART 3: widgets for Mithril and Bootstrap 4
@@ -259,8 +207,8 @@ function request(d) { // jshint ignore:line
 		}
 	};
 	m.request(d).then(function (response) {
-		if (response.commands && response.commands.length && serverCommands) {
-			serverCommands.runAll(response.commands);
+		if (response.commands && response.commands.length && window.serverCommands) {
+			window.serverCommands.runAll(response.commands);
 		}
 		if (handle)  notifier.rmStatus(handle);
 		if (ret.callback) {
@@ -295,8 +243,9 @@ function request(d) { // jshint ignore:line
 }
 
 
- // The *rows* argument should be an array of arrays
+
 class SimpleTable { // jshint ignore:line
+	// The *rows* argument should be an array of arrays
 	constructor({headers=[], rows=[], classes='.table .table-bordered', caption=null}={}) {
 		this.headers = headers;
 		this.rows = rows;
@@ -374,13 +323,15 @@ class SortedTable { // jshint ignore:line
 
 class Select { // jshint ignore:line
 	constructor({groups=null, opts=null, css='', onChange=null}={}) {
-		if (!groups && !opts || groups && opts)  throw new Error(
-			"Pass either *groups* or *opts* to Select constructor.");
+		if (!groups && !opts || groups && opts)
+			throw new Error(
+				"Pass either *groups* or *opts* to Select constructor.");
 		this.groups = groups;
 		this.opts = opts;
 		this.css = css;
-		this.changed = new Event();
-		if (onChange)  this.changed.subscribe(onChange);
+		this.changed = new TinyEvent();
+		if (onChange)
+			this.changed.subscribe(onChange);
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -457,7 +408,7 @@ class DropdownNav extends MenuStrategy { // An individual drop down menu
 			'click', () => this.clickOutsideMenu.apply(this));
 		for (const nav of this.entry.children) {
 			if (nav.click_event_name) {
-				nav.click = new Event(nav.click_event_name);
+				nav.click = new TinyEvent(nav.click_event_name);
 			}
 		}
 	}
@@ -530,7 +481,7 @@ class NavMenu { // jshint ignore:line
 		this.classes = att.classes || '';
 		this.bootstrap = bootstrap;
 		this.burgerMenuShow = false;
-		this.burgerMenuClick = new Event();
+		this.burgerMenuClick = new TinyEvent();
 		this.burgerMenuClick.subscribe(this.toggleBurgerMenu);
 		// ".navbar-expand-lg.navbar-dark.bg-dark"
 
@@ -628,7 +579,7 @@ class SearchBox { // jshint ignore:line
 		this.inputAttrs = this.inputAttrs || {};
 		this.inputAttrs.onkeyup = this.inputAttrs.onkeyup ||
 			((e) => this.keyup.apply(this, [e]));
-		this.changed = new Event();
+		this.changed = new TinyEvent();
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -700,7 +651,7 @@ class PhoneField { // jshint ignore:line
 			type: type,
 			value: value,
 		};
-		this.changed = new Event();
+		this.changed = new TinyEvent();
 	}
 	keyup(val) {
 		this.attrs.value = val;
@@ -734,3 +685,31 @@ class ContentEditable { // jshint ignore:line
 		}, m.trust(this.text));
 	}
 }
+
+
+class ServerCommands { // jshint ignore:line
+	constructor(context) {
+		this.context = context;
+		this.commands = {};
+	}
+
+	add(commandName, command) {
+		this.commands[commandName] = command;
+	}
+
+	run(command) {
+		this.commands[command.name](this.context, command);
+	}
+
+	runAll(commands) {
+		for (const command of commands) {
+			this.run(command);
+		}
+	}
+}
+
+export {
+	Unique, TinyEvent, UL, Notification, request, SimpleTable, SortedTable,
+	Select, MenuStrategy, Notifier, SelectNav, DropdownNav, NavMenu, SearchBox,
+	FormField, PhoneField, ContentEditable, ServerCommands
+};

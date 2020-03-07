@@ -65,3 +65,5 @@ class Popover {  // jshint ignore:line
 		) : undefined;
 	}
 }
+
+export { Popover };

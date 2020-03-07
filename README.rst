@@ -26,7 +26,7 @@ Current versions of dependencies
 Brief description of the contents
 =================================
 
-- **Event** is a tiny implementation of the Observer pattern.
+- **TinyEvent** is a simple implementation of the Observer pattern.
 - **Notification** is a class that represents a single message to be
   displayed to the user. Each instance may contain a title,
   a main content in either HTML or plain text, and a level such as
