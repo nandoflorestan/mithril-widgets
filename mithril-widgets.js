@@ -1,5 +1,7 @@
 "use strict";
 
+import m from '/web_modules/mithril/mithril.js';
+
 // PART 2: Useful helper functions and services
 
 function readCookie(name) {
