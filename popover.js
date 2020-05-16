@@ -1,5 +1,7 @@
 "use strict";
 
+import m from '/web_modules/mithril/mithril.js';
+
 // A bootstrap 4 popover. *content* can be a Mithril component such as:
 //
 //	class PopoverContent {
