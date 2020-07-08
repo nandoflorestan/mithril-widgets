@@ -31,9 +31,12 @@ class TinyEvent {
 	subscribe(fn, ctx) {
 		// *ctx* is what *this* will be inside *fn*.
 		this.observers.push({fn, ctx});
+		return fn;
 	}
-	unsubscribe(fn) {
-		this.observers = this.observers.filter(x => x !== fn);
+	unsubscribe(fn, ctx) {
+		const initialLen = this.observers.length;
+		this.observers = this.observers.filter(x => x.fn !== fn || x.ctx !== ctx);
+		if (this.observers.length === initialLen) console.warn(`Function was not subscribed: ${fn}`);
 	}
 	broadcast() {
 		// Accepts arguments.
