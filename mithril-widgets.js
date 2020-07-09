@@ -24,26 +24,42 @@ const Unique = {
 };
 
 class TinyEvent {
-	constructor(name) {
-		this.observers = [];
-		if (name) TinyEvent.index[name] = this;
+	/* Use this when you want events without DOM elements. */
+	static _index                        ;
+	_observers                  ;
+
+	constructor(name         ) {
+		this.clear();
+		if (name) TinyEvent._index.set(name, this);
 	}
-	subscribe(fn, ctx) {
+	clear() {
+		this._observers = [];
+	}
+	subscribe(fn          , ctx           )           {
 		// *ctx* is what *this* will be inside *fn*.
-		this.observers.push({fn, ctx});
+		this._observers.push({fn, ctx});
 		return fn;
 	}
-	unsubscribe(fn, ctx) {
-		const initialLen = this.observers.length;
-		this.observers = this.observers.filter(x => x.fn !== fn || x.ctx !== ctx);
-		if (this.observers.length === initialLen) console.warn(`Function was not subscribed: ${fn}`);
+	unsubscribe(fn          , ctx           ) {
+		const initialLen = this._observers.length;
+		this._observers = this._observers.filter(
+			(x) => x.fn !== fn || x.ctx !== ctx
+		);
+		if (this._observers.length === initialLen)
+			console.warn(`Function was not subscribed: ${fn}`);
 	}
 	broadcast() {
-		// Accepts arguments.
-		for (const o of this.observers) o.fn.apply(o.ctx, arguments);
+		// Dispatch this event. Accepts arguments.
+		for (const o of this._observers) {
+			o.fn.apply(o.ctx, arguments);
+		}
+	}
+	static byName(name        ) {
+		return this._index.get(name);
 	}
 }
-TinyEvent.index = {}; // storage for all named events
+TinyEvent._index = Object.seal(new Map()); // storage for all named events
+
 
 // PART 3: widgets for Mithril and Bootstrap 4
 
