@@ -34,7 +34,7 @@ class TinyEvent {
 		if (name) TinyEvent._index.set(name, this);
 		// starts as false so it doesn't run before the first broadcast
 		if (triggerOnLateSubscribe)
-			this.triggerOnLateSubscribe = false;
+			this.trigged = false;
 	}
 	clear() {
 		this._observers = [];
@@ -42,10 +42,9 @@ class TinyEvent {
 	subscribe(fn          , ctx           )           {
 		// *ctx* is what *this* will be inside *fn*.
 		this._observers.push({fn, ctx});
-		// call broadcast again if the broadcast already run before
-		// and if user instantiate it with triggerOnLateSubscribe
-		if (this.triggerOnLateSubscribe === true) {
-			this.broadcast();
+		// trigger the function now if the broadcast already run
+		if (this.trigged === true) {
+			fn.apply(ctx, arguments);
 		}
 		return fn;
 	}
@@ -62,12 +61,9 @@ class TinyEvent {
 		for (const o of this._observers) {
 			o.fn.apply(o.ctx, arguments);
 		}
-		// If not undefined run and remove current observer so it not run again
-		if (this.triggerOnLateSubscribe !== undefined) {
-			this.triggerOnLateSubscribe = true;
-			for (const o of this._observers) {
-				this.unsubscribe(o.fn, o.ctx);
-			}
+		// If not undefined change triggerOnLateSubscribe to true
+		if (this.trigged !== undefined) {
+			this.trigged = true;
 		}
 	}
 	static byName(name        ) {
