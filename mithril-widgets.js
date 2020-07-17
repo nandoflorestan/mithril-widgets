@@ -1,8 +1,10 @@
+/** @prettier */
 "use strict";
 
-import m from '/web_modules/mithril/mithril.js';
+import m from "/web_modules/mithril/mithril.js";
 
-// PART 2: Useful helper functions and services
+// Useful helper functions and services
+// ====================================
 
 function readCookie(name) {
 	const nameEQ = name + "=";
@@ -23,32 +25,35 @@ const Unique = {
 	domID: () => "_" + Unique.next(), // div IDs must not start with a number
 };
 
-
-class TinyEvent {
+class _TinyEvent {
 	/* Use this when you want events without DOM elements. */
-	static _index                        ;
-	_observers                  ;
+	static _index;
+	_observers;
+	_triggerLate;
+	triggeredCount;
 
-	constructor(name         , triggerOnLateSubscribe         ) {
+	constructor(name) {
+		if (name) _TinyEvent._index.set(name, this);
+		this._triggerLate = false;
 		this.clear();
-		if (name) TinyEvent._index.set(name, this);
-		// starts as false so it doesn't run before the first broadcast
-		if (triggerOnLateSubscribe)
-			this.trigged = false;
 	}
 	clear() {
+		this.triggeredCount = 0;
 		this._observers = [];
 	}
-	subscribe(fn          , ctx           )           {
+	pleaseTriggerOnLateSubscribe() {
+		this._triggerLate = true;
+		return this;
+	}
+	subscribe(fn, ctx) {
 		// *ctx* is what *this* will be inside *fn*.
 		this._observers.push({fn, ctx});
-		// trigger the function now if the broadcast already run
-		if (this.trigged === true) {
+		// Sometimes we run fn immediately if the event was already triggered
+		if (this._triggerLate && this.triggeredCount > 0)
 			fn.apply(ctx, arguments);
-		}
 		return fn;
 	}
-	unsubscribe(fn          , ctx           ) {
+	unsubscribe(fn, ctx) {
 		const initialLen = this._observers.length;
 		this._observers = this._observers.filter(
 			(x) => x.fn !== fn || x.ctx !== ctx
@@ -58,22 +63,23 @@ class TinyEvent {
 	}
 	broadcast() {
 		// Dispatch this event. Accepts arguments.
+		this.triggeredCount++;
 		for (const o of this._observers) {
 			o.fn.apply(o.ctx, arguments);
 		}
-		// If not undefined change triggerOnLateSubscribe to true
-		if (this.trigged !== undefined) {
-			this.trigged = true;
-		}
 	}
-	static byName(name        ) {
+	static byName(name) {
 		return this._index.get(name);
 	}
 }
-TinyEvent._index = Object.seal(new Map()); // storage for all named events
+_TinyEvent._index = Object.seal(new Map()); // storage for all named events
 
+/*export*/ function TinyEvent(name) {
+	return Object.seal(new _TinyEvent(name));
+}
 
-// PART 3: widgets for Mithril and Bootstrap 4
+// Widgets for Mithril and Bootstrap 4
+// ===================================
 
 class UL {
 	// Unordered list
@@ -85,7 +91,7 @@ class UL {
 		return m(
 			"ul",
 			this.attrs,
-			this.items.map(i => m("li", i))
+			this.items.map((i) => m("li", i))
 		);
 	}
 }
@@ -338,14 +344,14 @@ class SimpleTable {
 			this.caption ? m("caption", this.caption) : null,
 			m(
 				"thead",
-				this.headers.map(h => m("th", h))
+				this.headers.map((h) => m("th", h))
 			),
 			m(
 				"tbody",
-				this.rows.map(r =>
+				this.rows.map((r) =>
 					m(
 						"tr",
-						r.map(txt => m("td", txt))
+						r.map((txt) => m("td", txt))
 					)
 				)
 			),
@@ -380,11 +386,11 @@ class SortedTable {
 					: null,
 				m(
 					'thead[title="Click on a column header to sort"]',
-					this.headers.map(h =>
+					this.headers.map((h) =>
 						m(
 							'th[style="cursor:pointer;"]',
 							{
-								onclick: e => this.headerClick(e, this),
+								onclick: (e) => this.headerClick(e, this),
 								"data-key": h.key,
 								"data-title": h.title,
 							},
@@ -394,10 +400,10 @@ class SortedTable {
 				),
 				m(
 					"tbody",
-					this.rows.map(o =>
+					this.rows.map((o) =>
 						m(
 							"tr",
-							this.headers.map(h =>
+							this.headers.map((h) =>
 								m(
 									"td",
 									this.formatter[h.key]
@@ -440,7 +446,7 @@ class Select {
 		this.groups = groups;
 		this.opts = opts;
 		this.css = css;
-		this.changed = new TinyEvent();
+		this.changed = TinyEvent();
 		if (onChange) this.changed.subscribe(onChange);
 	}
 	view(vnode) {
@@ -450,7 +456,7 @@ class Select {
 		return m(
 			"select" + self.css,
 			{
-				onchange: m.withAttr("value", v =>
+				onchange: m.withAttr("value", (v) =>
 					self.changed.broadcast.apply(self.changed, [v])
 				),
 			},
@@ -459,15 +465,15 @@ class Select {
 	}
 	content() {
 		if (this.groups) {
-			return this.groups.map(g =>
+			return this.groups.map((g) =>
 				m(
 					"optgroup",
 					{label: g.label},
-					g.options.map(o => this.mkOption(o))
+					g.options.map((o) => this.mkOption(o))
 				)
 			);
 		} else {
-			return this.opts.map(o => this.mkOption(o));
+			return this.opts.map((o) => this.mkOption(o));
 		}
 	}
 	mkOption(opt) {
@@ -495,7 +501,7 @@ class SelectNav extends MenuStrategy {
 		return m(
 			"select",
 			{
-				onchange: m.withAttr("value", url => (window.location = url)),
+				onchange: m.withAttr("value", (url) => (window.location = url)),
 				style: this.entry.style || "margin-right:1rem;",
 				title: this.entry.tooltip || undefined,
 			},
@@ -508,7 +514,7 @@ class SelectNav extends MenuStrategy {
 			m(
 				"optgroup",
 				{label: "Navigate to:"},
-				entry.children.map(c => this.option(c))
+				entry.children.map((c) => this.option(c))
 			),
 		];
 	}
@@ -535,7 +541,7 @@ class DropdownNav extends MenuStrategy {
 		);
 		for (const nav of this.entry.children) {
 			if (nav.click_event_name) {
-				nav.click = new TinyEvent(nav.click_event_name);
+				nav.click = TinyEvent(nav.click_event_name);
 			}
 		}
 	}
@@ -550,7 +556,7 @@ class DropdownNav extends MenuStrategy {
 					id: this.id,
 					role: "button",
 					title: this.entry.tooltip || undefined,
-					onclick: e => self.click.apply(self, [e]),
+					onclick: (e) => self.click.apply(self, [e]),
 				},
 				[
 					this.entry.icon
@@ -614,7 +620,7 @@ class NavMenu {
 		this.classes = att.classes || "";
 		this.bootstrap = bootstrap;
 		this.burgerMenuShow = false;
-		this.burgerMenuClick = new TinyEvent();
+		this.burgerMenuClick = TinyEvent();
 		this.burgerMenuClick.subscribe(this.toggleBurgerMenu);
 		// ".navbar-expand-lg.navbar-dark.bg-dark"
 
@@ -729,8 +735,8 @@ class SearchBox {
 		Object.assign(this, attrs); // shallow copy
 		this.inputAttrs = this.inputAttrs || {};
 		this.inputAttrs.onkeyup =
-			this.inputAttrs.onkeyup || (e => this.keyup.apply(this, [e]));
-		this.changed = new TinyEvent();
+			this.inputAttrs.onkeyup || ((e) => this.keyup.apply(this, [e]));
+		this.changed = TinyEvent();
 	}
 	view(vnode) {
 		// Why "self" in view()? You'd expect *this* to refer to this instance,
@@ -746,7 +752,7 @@ class SearchBox {
 					".input-group-append",
 					m(
 						"button.btn.btn-outline-secondary[type=button][title=Clear search]",
-						{onclick: e => self.clear.apply(self, [e])},
+						{onclick: (e) => self.clear.apply(self, [e])},
 						"×"
 					)
 				),
@@ -818,7 +824,7 @@ class PhoneField {
 			type: type,
 			value: value,
 		};
-		this.changed = new TinyEvent();
+		this.changed = TinyEvent();
 	}
 	keyup(val) {
 		this.attrs.value = val;
@@ -850,7 +856,7 @@ class ContentEditable {
 			"div",
 			{
 				contenteditable: true,
-				onchange: m.withAttr("innerText", t => (this.text = t)),
+				onchange: m.withAttr("innerText", (t) => (this.text = t)),
 			},
 			m.trust(this.text)
 		);
