@@ -69,7 +69,7 @@ class _TinyEvent {
 		}
 	}
 	static byName(name) {
-		return this._index.get(name);
+		return _TinyEvent._index.get(name);
 	}
 }
 _TinyEvent._index = Object.seal(new Map()); // storage for all named events
@@ -77,6 +77,7 @@ _TinyEvent._index = Object.seal(new Map()); // storage for all named events
 /*export*/ function TinyEvent(name) {
 	return Object.seal(new _TinyEvent(name));
 }
+TinyEvent.byName = _TinyEvent.byName;
 
 // Widgets for Mithril and Bootstrap 4
 // ===================================
