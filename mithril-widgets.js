@@ -23,14 +23,18 @@ const Unique = {
 	domID: () => "_" + Unique.next(), // div IDs must not start with a number
 };
 
+
 class TinyEvent {
 	/* Use this when you want events without DOM elements. */
 	static _index                        ;
 	_observers                  ;
 
-	constructor(name         ) {
+	constructor(name         , triggerOnLateSubscribe         ) {
 		this.clear();
 		if (name) TinyEvent._index.set(name, this);
+		// starts as false so it doesn't run before the first broadcast
+		if (triggerOnLateSubscribe)
+			this.triggerOnLateSubscribe = false;
 	}
 	clear() {
 		this._observers = [];
@@ -38,6 +42,11 @@ class TinyEvent {
 	subscribe(fn          , ctx           )           {
 		// *ctx* is what *this* will be inside *fn*.
 		this._observers.push({fn, ctx});
+		// call broadcast again if the broadcast already run before
+		// and if user instantiate it with triggerOnLateSubscribe
+		if (this.triggerOnLateSubscribe === true) {
+			this.broadcast();
+		}
 		return fn;
 	}
 	unsubscribe(fn          , ctx           ) {
@@ -52,6 +61,13 @@ class TinyEvent {
 		// Dispatch this event. Accepts arguments.
 		for (const o of this._observers) {
 			o.fn.apply(o.ctx, arguments);
+		}
+		// If not undefined run and remove current observer so it not run again
+		if (this.triggerOnLateSubscribe !== undefined) {
+			this.triggerOnLateSubscribe = true;
+			for (const o of this._observers) {
+				this.unsubscribe(o.fn, o.ctx);
+			}
 		}
 	}
 	static byName(name        ) {
