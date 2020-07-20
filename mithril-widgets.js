@@ -69,7 +69,9 @@ class _TinyEvent {
 		}
 	}
 	static byName(name) {
-		return _TinyEvent._index.get(name);
+		const event = _TinyEvent._index.get(name);
+		if (event == null) throw new Error(`Event not registered: "${name}"`);
+		return event;
 	}
 }
 _TinyEvent._index = Object.seal(new Map()); // storage for all named events
