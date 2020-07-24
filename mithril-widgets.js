@@ -27,10 +27,6 @@ const Unique = {
 
 class _TinyEvent {
 	/* Use this when you want events without DOM elements. */
-	static _index;
-	_observers;
-	_triggerLate;
-	triggeredCount;
 
 	constructor(name) {
 		if (name) _TinyEvent._index.set(name, this);
