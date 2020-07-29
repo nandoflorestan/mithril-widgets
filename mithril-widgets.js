@@ -25,11 +25,23 @@ const Unique = {
 	domID: () => "_" + Unique.next(), // div IDs must not start with a number
 };
 
+/*export*/ function assert(condition, msg) {
+	if (!condition) {
+		throw new Error(msg || "Assertion failed.");
+	}
+}
+
 class _TinyEvent {
 	/* Use this when you want events without DOM elements. */
 
 	constructor(name) {
-		if (name) _TinyEvent._index.set(name, this);
+		if (name) {
+			assert(
+				!_TinyEvent._index.has(name),
+				`Event "${name}" already exists!`
+			);
+			_TinyEvent._index.set(name, this);
+		}
 		this._triggerLate = false;
 		this.clear();
 	}
