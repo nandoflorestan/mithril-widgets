@@ -181,7 +181,7 @@ var Notifier = {
 				self.timeOut = window.setTimeout(self.next, 200);
 			}
 		} else {
-			throw "Notifier phase could not be cycled.";
+			throw new Error("Notifier phase could not be cycled.");
 		}
 		m.redraw();
 	},
