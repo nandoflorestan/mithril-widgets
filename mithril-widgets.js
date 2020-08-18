@@ -262,6 +262,7 @@ function request(d) {
 	d.withCredentials = true;
 	d.headers = d.headers || {};
 	d.headers["X-XSRF-Token"] = readCookie("XSRF-TOKEN");
+	d.headers.Accept = d.headers.Accept || "application/json";
 	const ret = {
 		then: function(callback) {
 			this.callback = callback;
