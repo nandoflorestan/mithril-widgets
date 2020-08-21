@@ -254,7 +254,6 @@ var Notifier = {
 };
 
 function request(d) {
-	// jshint ignore:line
 	// Let user know a request is in progress and
 	// set the 'X-XSRF-Token' request header.
 	const notifier = d.pop("notifier") || Notifier;
@@ -326,7 +325,6 @@ function request(d) {
 }
 
 class SimpleTable {
-	// jshint ignore:line
 	// The *rows* argument should be an array of arrays
 	constructor({
 		headers = [],
@@ -360,7 +358,6 @@ class SimpleTable {
 }
 
 class SortedTable {
-	// jshint ignore:line
 	// The constructor takes these params and sorts the data:
 	// classes: str,
 	// headers: [{key: sort_key, title: title}...],
@@ -437,7 +434,6 @@ class SortedTable {
 }
 
 class Select {
-	// jshint ignore:line
 	constructor({groups = null, opts = null, css = "", onChange = null} = {}) {
 		if ((!groups && !opts) || (groups && opts))
 			throw new Error(
@@ -612,7 +608,6 @@ class DropdownNav extends MenuStrategy {
 DropdownNav.instances = [];
 
 class NavMenu {
-	// jshint ignore:line
 	constructor(att, strategy = SelectNav, bootstrap = 4) {
 		this.strategy = strategy;
 		this.permanent = att.permanent || [];
@@ -728,7 +723,6 @@ class NavMenu {
 }
 
 class SearchBox {
-	// jshint ignore:line
 	// User code can use the event: `searchBox.changed.subscribe(fn);`
 	constructor(attrs) {
 		this.showNoResults = false;
@@ -785,7 +779,6 @@ class SearchBox {
 
 // A bootstrap 4 form field, maybe with associated label
 class FormField {
-	// jshint ignore:line
 	constructor(label, input) {
 		this.input = input;
 		if (!input.id) input.id = Unique.domID();
@@ -804,7 +797,6 @@ class FormField {
 }
 
 class PhoneField {
-	// jshint ignore:line
 	// User code can use the event: `phonefield.changed.subscribe(fn);`
 	constructor({
 		value = "",
@@ -839,7 +831,6 @@ class PhoneField {
 }
 
 class ContentEditable {
-	// jshint ignore:line
 	// TODO Observer in order to POST edited content
 	// from http://jsbin.com/vihuyi/edit?js,output
 	constructor(text) {
@@ -864,7 +855,6 @@ class ContentEditable {
 }
 
 class ServerCommands {
-	// jshint ignore:line
 	constructor(context) {
 		this.context = context;
 		this.commands = {};
