@@ -314,6 +314,7 @@ function request(d) {
 					msg.plain = String(e);
 				}
 				notifier.add(msg);
+				console.error(e);
 			}
 			if (handle) notifier.rmStatus(handle);
 			if (e.redirect) window.location = e.redirect;
